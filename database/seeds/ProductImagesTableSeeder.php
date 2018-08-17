@@ -20,7 +20,22 @@ class ProductImagesTableSeeder extends Seeder
         ProductImage::create([
         	'product_id' => 1,
         	'image_url' => 'imgs/v350-100.jpg',
-        	'position' => 1
-        ])
+        	'position' => 1,
+            'sort_order' => 1
+        ]);
+
+        ProductImage::create([
+            'product_id' => 1,
+            'image_url' => 'imgs/v350-100.jpg',
+            'position' => 2,
+            'sort_order' => 1
+        ]);
+
+        ProductImage::create([
+            'product_id' => 2,
+            'image_url' => 'imgs/v350-ws.jpg',
+            'position' => 1,
+            'sort_order' => 1
+        ]);
     }
 }

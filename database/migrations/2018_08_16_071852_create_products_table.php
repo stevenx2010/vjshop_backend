@@ -20,13 +20,14 @@ class CreateProductsTable extends Migration
             $table->integer('sub_category_id')->unsigned();
             $table->foreign('sub_category_id')->references('id')->on('product_sub_categories')->delete('cascade');
             $table->string('model', 40);
-            $table->string('package_uint', 4);
+            $table->string('package_unit', 4);
             $table->decimal('weight');
             $table->string('weight_unit', 6);
             $table->decimal('price');
             $table->string('brand')->nullable();
             $table->integer('inventory')->unsigned();
             $table->string('thumbnail_url', 255);
+            $table->integer('saled_amount')->unsiged()->nullable()->default(0);
             $table->integer('sort_order')->unsigne();
             $table->timestamps();
         });

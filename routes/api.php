@@ -20,3 +20,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::resource('HomePageImages', 'HomePageImagesController');
 
 Route::get('HomePageImages/images/{position}', 'HomePageImagesController@show');
+
+Route::get('product/categories', 'ProductCategoriesController@index');
+
+Route::get('product/all', 'ProductsController@index');
+
+Route::get('product/detail/{productId}', 'ProductsController@show');
+Route::get('product/detail/images/{productId}/{position}','ProductsController@showImages');

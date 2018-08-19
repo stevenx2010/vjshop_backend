@@ -23,7 +23,17 @@ Route::get('HomePageImages/images/{position}', 'HomePageImagesController@show');
 
 Route::get('product/categories', 'ProductCategoriesController@index');
 
+// Get all products
 Route::get('product/all', 'ProductsController@index');
 
+// Get product sub-categories
+Route::get('product/productSubCategories/{categoryId}', 'ProductsController@showProductSubCategories');
+
+// Get products of a category
+Route::get('product/products/{productCategoryId}', 'ProductsController@showProducts');
+
+// Get product detail info by product id
 Route::get('product/detail/{productId}', 'ProductsController@show');
+
+// Get images of product detail in position 1 & 2
 Route::get('product/detail/images/{productId}/{position}','ProductsController@showImages');

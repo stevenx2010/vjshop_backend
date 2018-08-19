@@ -17,8 +17,9 @@ class CreateProductsTable extends Migration
             $table->increments('id');
             $table->string('name', 255);
             $table->string('description', 251);
-            $table->integer('sub_category_id')->unsigned();
-            $table->foreign('sub_category_id')->references('id')->on('product_sub_categories')->delete('cascade');
+            $table->integer('product_sub_category_id')->unsigned();
+            $table->foreign('product_sub_category_id')->references('id')->on('product_sub_categories')->delete('cascade');
+            $table->string('product_sub_category_name');
             $table->string('model', 40);
             $table->string('package_unit', 4);
             $table->decimal('weight');

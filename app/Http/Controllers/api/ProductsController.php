@@ -49,6 +49,8 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    // Get product detail
     public function show($productId)
     {
         return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'saled_amount')->where('id', $productId)->get();
@@ -69,6 +71,10 @@ class ProductsController extends Controller
     {
         //return Product::select('id', 'product_sub_category_id', 'model', 'thumbnail_url')->where('product_sub_category_id', $productSubCategoryId)->orderBy('sort_order')->get();
         return ProductCategory::find($productId)->products()->select('products.id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url')->orderBy('product_sub_category_id')->orderBy('products.id')->get();
+    }
+
+    public function showProductSearched($keyword) {
+        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'saled_amount')->where('name', 'LIKE', "%{$keyword}%")->get();
     }
 
     /**

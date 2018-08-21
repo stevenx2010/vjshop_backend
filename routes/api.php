@@ -21,6 +21,12 @@ Route::resource('HomePageImages', 'HomePageImagesController');
 
 Route::get('HomePageImages/images/{position}', 'HomePageImagesController@show');
 
+/*
+|--------------------------------------------------------------------------
+| Product Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::get('product/categories', 'ProductCategoriesController@index');
 
 // Get all products
@@ -37,3 +43,14 @@ Route::get('product/detail/{productId}', 'ProductsController@show');
 
 // Get images of product detail in position 1 & 2
 Route::get('product/detail/images/{productId}/{position}','ProductsController@showImages');
+
+// Get product search result by keyword
+Route::get('product/search/{keyword}', 'ProductsController@showProductSearched');
+
+/*
+|--------------------------------------------------------------------------
+| Customer Routes
+|--------------------------------------------------------------------------
+*/
+Route::post('customer/login/getsms', 'CustomersController@getsms');
+Route::post('customer/login/confirm', 'CustomersController@confirm');

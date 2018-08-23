@@ -47,10 +47,21 @@ Route::get('product/detail/images/{productId}/{position}','ProductsController@sh
 // Get product search result by keyword
 Route::get('product/search/{keyword}', 'ProductsController@showProductSearched');
 
+// Get products by ids
+Route::post('product/products/ids', 'ProductsController@showProductsByIds');
+
+
 /*
 |--------------------------------------------------------------------------
-| Customer Routes
+| Customer Login Routes
 |--------------------------------------------------------------------------
 */
-Route::post('customer/login/getsms', 'CustomersController@getsms');
-Route::post('customer/login/confirm', 'CustomersController@confirm');
+Route::post('customer/login', 'CustomersController@customerLogin');
+
+/*
+|--------------------------------------------------------------------------
+| Shipping Address Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('address/all/{mobile}', 'ShippingAddressController@show');
+Route::get('address/userid/{mobile}', 'ShippingAddressController@showUserId');

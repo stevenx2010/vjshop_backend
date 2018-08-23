@@ -19,6 +19,7 @@ class CreateShippingAddressesTable extends Migration
             $table->string('street', 255);
             $table->integer('customer_id')->unsigned();
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
+            $table->string('tel', 20)->nullable();
             $table->boolean('default_address')->default(false);
             $table->timestamps();
         });

@@ -28,7 +28,7 @@ class CreateProductsTable extends Migration
             $table->string('brand')->nullable();
             $table->integer('inventory')->unsigned();
             $table->string('thumbnail_url', 255);
-            $table->integer('saled_amount')->unsiged()->nullable()->default(0);
+            $table->integer('sold_amount')->unsiged()->nullable()->default(0);
             $table->integer('sort_order')->unsigne();
             $table->timestamps();
         });

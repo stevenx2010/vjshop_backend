@@ -30,7 +30,7 @@ class ProductsTableSeeder extends Seeder
         	'brand' => 'Venjong',
         	'inventory' => 1000,
         	'thumbnail_url' => 'imgs/v350-100.png',
-            'saled_amount' => 1,
+            'sold_amount' => 1,
         	'sort_order' => 1
         ]);
 
@@ -47,7 +47,7 @@ class ProductsTableSeeder extends Seeder
         	'brand' => 'Venjong',
         	'inventory' => 1000,
         	'thumbnail_url' => 'imgs/v350-ws.png',
-            'saled_amount' => 0,
+            'sold_amount' => 0,
         	'sort_order' => 2
         ]);    
 
@@ -64,7 +64,7 @@ class ProductsTableSeeder extends Seeder
         	'brand' => 'Venjong',
         	'inventory' => 1000,
         	'thumbnail_url' => 'imgs/v350.png',
-            'saled_amount' => 0,
+            'sold_amount' => 0,
         	'sort_order' => 3
         ]);  
 
@@ -81,7 +81,7 @@ class ProductsTableSeeder extends Seeder
         	'brand' => 'Venjong',
         	'inventory' => 1000,
         	'thumbnail_url' => 'imgs/v350-w100.png',
-            'saled_amount' => 0,
+            'sold_amount' => 0,
         	'sort_order' => 4
         ]); 
 

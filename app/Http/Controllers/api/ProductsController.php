@@ -22,7 +22,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        return Product::select('id', 'product_sub_category_id', 'model', 'thumbnail_url')->get();
+        return Product::select('id', 'product_sub_category_id', 'model', 'thumbnail_url', 'price', 'sold_amount')->get();
     }
 
     /**
@@ -56,7 +56,7 @@ class ProductsController extends Controller
     // Get product detail
     public function show($productId)
     {
-        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'saled_amount')->where('id', $productId)->get();
+        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount')->where('id', $productId)->get();
     }
 
     public function showImages($productId, $position)
@@ -77,7 +77,7 @@ class ProductsController extends Controller
     }
 
     public function showProductSearched($keyword) {
-        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'saled_amount')->where('name', 'LIKE', "%{$keyword}%")->get();
+        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount')->where('name', 'LIKE', "%{$keyword}%")->get();
     }
 
     public function showProductsByIds(Request $reqeust)
@@ -88,7 +88,7 @@ class ProductsController extends Controller
         foreach ($req as $key) {
             $productId = $key['productId'];
             
-            $product = Product::select('id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url')->where('id', $productId)->get();
+            $product = Product::select('id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url','price', 'sold_amount')->where('id', $productId)->get();
 
             array_push($products, $product);
 

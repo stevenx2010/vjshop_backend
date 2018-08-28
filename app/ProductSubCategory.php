@@ -8,6 +8,8 @@ use App\ProductCategory;
 
 class ProductSubCategory extends Model
 {
+	protected $fillable = ['name', 'description', 'sort_order'];
+	
     public function productCategories() {
     	return $this->belongsTo('App\ProductCategory');
     }

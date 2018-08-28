@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 
 use App\ProductCategory;
 
+use Illuminate\Support\Facades\Log;
+
 class ProductCategoriesController extends Controller
 {
     /**
@@ -16,7 +18,7 @@ class ProductCategoriesController extends Controller
      */
     public function index()
     {
-        return ProductCategory::select('id', 'name')->orderBy('sort_order')->get();
+        return ProductCategory::select('id', 'name', 'description', 'sort_order')->orderBy('sort_order')->get();
     }
 
     /**
@@ -46,9 +48,9 @@ class ProductCategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($productId)
     {
-        //
+        return ProductCategory::select('id', 'name', 'description', 'sort_order')->where('id', $productId)->get();
     }
 
     /**
@@ -69,9 +71,32 @@ class ProductCategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $ProductCategory = ProductCategory::updateOrCreate(
+            ['id' => $request['id']],
+            [
+                'name' => $request['name'],
+                'description' => $request['description'],
+                'sort_order' => $request['sort_order']
+            ]
+        );
+
+        return response("{'status', 1}", 200)->header('Content-type', 'application/json');
+    }
+
+    public function swap(Request $request) 
+    {
+        $i = (ProductCategory::select('sort_order')->where('id', $request[0])->get())[0];
+        $j = (ProductCategory::select('sort_order')->where('id', $request[1])->get())[0];
+
+        $i = (json_decode($i, true))['sort_order'];
+        $j = (json_decode($j, true))['sort_order'];
+
+        ProductCategory::find($request[0])->update(['sort_order' => $j]);
+        ProductCategory::find($request[1])->update(['sort_order' => $i]);
+
+        return response('sort_order swapped', 200);
     }
 
     /**
@@ -80,8 +105,12 @@ class ProductCategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($productId)
     {
-        //
+        ProductCategory::destroy($productId);
+
+        Log::debug($productId);
+
+        return response('deleted', 200);
     }
 }

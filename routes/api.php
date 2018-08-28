@@ -28,7 +28,14 @@ Route::get('HomePageImages/images/{position}', 'HomePageImagesController@show');
 */
 
 Route::get('product/categories', 'ProductCategoriesController@index');
+Route::post('product/categories', 'ProductCategoriesController@store');
+Route::post('product/categories/swap', 'ProductCategoriesController@swap');
+Route::get('product/categories/{productId}', 'ProductCategoriesController@show');
+Route::post('product/categories/update', 'ProductCategoriesController@update');
+Route::delete('product/categories/delete/{productId}', 'ProductCategoriesController@destroy');
 
+Route::get('product/subcategories/categoryid/{categoryId}', 'productSubCategoriesController@showByCategoryId');
+Route::post('product/subcategories/swap', 'ProductSubCategoriesController@swap');
 // Get all products
 Route::get('product/all', 'ProductsController@index');
 
@@ -49,6 +56,7 @@ Route::get('product/search/{keyword}', 'ProductsController@showProductSearched')
 
 // Get products by ids
 Route::post('product/products/ids', 'ProductsController@showProductsByIds');
+
 
 
 /*

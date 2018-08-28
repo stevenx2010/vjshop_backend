@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Log;
 
+use \Cache;
+
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\ValidationData;
@@ -15,6 +17,9 @@ use Lcobucci\JWT\Parser;
 
 use App\Customer;
 use App\ShippingAddress;
+
+use App\Libraries\Ucpaas\SmsRequest;
+use App\Libraries\Ucpaas\SmsResponse;
 
 class CustomersController extends Controller
 {
@@ -25,6 +30,7 @@ class CustomersController extends Controller
      */
 
     public function customerLogin(Request $request) {
+      
         Log::debug($request);
         Log::debug($request->header('authorization'));
         $API_TOKEN = 'asdfasdf';
@@ -57,34 +63,51 @@ class CustomersController extends Controller
     // Helpers
     
     public function sendSMSCode($request) {
-        // step 1: send SMS to sms_api & get status
-        $smsSendStatus = 1;
+        // step 1: Generate a random number, then send SMS to sms_api & get status
+        $rand_number = mt_rand(100000, 999999);
+        $smsRequest = new SmsRequest($request['mobile'], $rand_number);
+
+        $smsResponse = new SmsResponse();
+        $smsResponse = $smsRequest->send();
+
+        Log::debug(json_decode($smsResponse, true));
+      
+        $resp =json_decode($smsResponse, true);
+
+        if($resp['code'] ==='000000') $smsSendStatus = SEND_SMS_CODE_SUCCESS;
+        else $smsSendStatus = SEND_SMS_CODE_FAILURE;
 
         // step 2: if succeeded, store the the sms in memcached temporarily 
+        Cache::put($request['mobile'], $rand_number, 1);  // expires after 1 minute;
 
         // step 3: send SMS sending status back to user
         if($smsSendStatus == SEND_SMS_CODE_SUCCESS) {
             // response result to customer
             return response(json_encode(['status'=> $smsSendStatus, 'mobile'=> $request['mobile']]), 200)->header('Content-type', 'application/json');
         } else {
-            return response(json_encode(['status' => 503, 'text' => 'SMS Code Sening Service is Unavailable Temporarily, Pls try again later']), 503)->header('Content-type', 'application/json');
+            return response(json_encode(['status' => $resp['code'], 'text' => $resp['msg']]), 200)->header('Content-type', 'application/json');
         }
     }
 
     public function authCustomer($request) {
+        Log::debug($request);
         $access_token = '';
         $response = [
             'status' => CONFIRM_SMS_CODE_FAILURE,
+            'text' => '',
             'mobile'=> $request['mobile'],
             'access_token' => '',
             'address_check' => 0
         ];
         // step 1: Get sms code from memcached to check if code matches & expired
         /******************** code here */
-        $smsCode = '123456';
+        $stored_sms_code = Cache::get($request['mobile']);
+        if(!$stored_sms_code) {
+          $response['text'] = 'SMS Code expired';
+        } else {
 
         // step 2: verify if the sms code received matches with the one in Memcached
-        if(trim($request['sms_code']) === $smsCode) {
+        if(trim($request['sms_code']) === $stored_sms_code) {
             // step 3: sms code matches then 
             // step 3-1: remove the sms code from Memcached
             /************************ code here */
@@ -129,6 +152,7 @@ class CustomersController extends Controller
                 }
 
             }
+          }
 
             $response['status'] = CONFIRM_SMS_CODE_SUCCESS;
         } 

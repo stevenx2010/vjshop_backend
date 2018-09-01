@@ -22,7 +22,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        return Product::select('id', 'product_sub_category_id', 'model', 'thumbnail_url', 'price', 'sold_amount')->get();
+        return Product::select('id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url', 'price', 'sold_amount', 'weight')->get();
     }
 
     /**
@@ -79,7 +79,8 @@ class ProductsController extends Controller
         return ProductCategory::find($productCategoryId)->products()->select('products.id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url')->orderBy('product_sub_category_id')->orderBy('products.id')->get();
     }
 
-    public function showProductSearched($keyword) {
+    public function showProductSearched($keyword) 
+    {
         return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'thumbnail_url')->where('name', 'LIKE', "%{$keyword}%")->get();
     }
 
@@ -101,6 +102,11 @@ class ProductsController extends Controller
         return response(json_encode($products), 200)->header('Content-type', 'application/json');
     }
 
+    public function showProductsBySubCategoryId($productSubCategoryId) 
+    {
+        return Product::select('id', 'name', 'product_sub_category_id', 'product_sub_category_name', 'description', 'model', 'price', 'weight', 'package_unit', 'weight_unit', 'sold_amount', 'thumbnail_url', 'sort_order')->where('product_sub_category_id', $productSubCategoryId)->orderBy('sort_order')->get();
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -119,10 +125,163 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateImage(Request $request)
     {
-        //
+        Log::debug($request);
+
+        $numOfTopImages = $request['numOfTopImages'];
+        $numOfBottomImages = $request['numOfBottomImages'];
+
+        for($i = 0; $i < $numOfTopImages; $i++) {
+            $filename = 'topImage' . $i;
+            if($request->hasFile($filename)) {
+                $file = $request->file($filename);
+          //      $path = $file->store('public/images');
+                $file->move(base_path('public/imgs'), $file->hashName());
+                //Log::debug($path);
+                Log::debug(base_path('public/imgs'));
+            }
+        }
+ 
+        for($i = 0; $i < $numOfBottomImages; $i++) {
+            $filename = 'bottomImage' . $i;
+            if($request->hasFile($filename)) {
+                $request->file($filename)->store('public/images');
+            }
+        }
+
+        if($request->hasFile('thumbnail')) {
+            $request->file('thumbnail')->store('/images', 'public');
+        }
+
     }
+
+    public function update(Request $request)
+    {
+         Log::debug($request);
+
+        // Step 1: fill product info uploaded
+        // 1) get the last sort order number
+        $temp = Product::select('sort_order')->orderBy('sort_order', 'desc')->take(1)->get();
+        $sort_order = ((json_decode($temp, true))[0])['sort_order'];
+        if($sort_order == 999) $sort_order += 10;     
+
+        // 2) create thumbnail image url
+        $thumbnail_url = '';
+        if($request->hasFile('thumbnail')) {
+            $file = $request->file('thumbnail');
+            //$file->store('/images', 'public');
+            $hashName = $file->hashName();
+
+            if($file->getMimeType() == 'image/jpeg')
+                 $hashName = substr_replace($hashName, 'jp', -4, -1);
+
+            $thumbnail_url = 'imgs/' . $hashName;
+            $file->move(base_path('public/imgs'), $hashName);
+        }
+
+        Log::debug($thumbnail_url);
+        
+        // 3) fill the product basic info & create/update it
+        $product = Product::updateOrCreate(
+            ['name' => $request['name'], 'model' =>  $request['model'], 'product_sub_category_id' => $request['product_sub_category_id'],  'product_sub_category_name' => $request['product_sub_category_name']],
+            [
+             'product_sub_category_id' => $request['product_sub_category_id'],
+             'product_sub_category_name' => $request['product_sub_category_name'],
+             'name' => $request['name'],
+             'description' => $request['description'],
+             'model' => $request['model'],
+             'package_unit' => $request['package_unit'],
+             'weight'=> $request['weight'],
+             'weight_unit' => $request['weight_unit'],
+             'price' => $request['price'],
+             'brand' => $request['brand'],
+             'inventory' => $request['inventory'],
+             'sort_order' => $sort_order,
+             'thumbnail_url' => $thumbnail_url
+            ]    
+        );
+
+        // 4) get the product id of the above created/updated product info
+        Log::debug($product);
+
+        $temp = json_decode($product, true);
+        $productId = $temp['id'];
+
+        // Step 2: process uploaded product images
+        // 1) images at the top
+        $numOfTopImages = $request['numOfTopImages'];
+
+        // get sort order
+        $temp = ProductImage::select('sort_order')->orderBy('sort_order', 'desc')->take(1)->get();
+        $sort_order = ((json_decode($temp, true))[0])['sort_order'];
+        if($sort_order == 999) $sort_order += 10;     
+
+        for($i = 0; $i < $numOfTopImages; $i++) {
+            $filename = 'topImage' . $i;
+            if($request->hasFile($filename)) {
+                $file = $request->file($filename);
+                $hashName = $file->hashName();
+                $file->move(base_path('public/imgs'), $hashName);
+
+                // save to database
+                $image = new ProductImage;
+                $image->product_id = $productId;
+                $image->image_url = 'imgs/' . $hashName;
+                $image->position = 1;    //top image
+                $image->sort_order = $sort_order + $i * 10;
+
+                $image->save();
+
+            }
+        }
+
+        $sort_order = $sort_order + $numOfTopImages * 10;
+
+        // 2) images at the bottom
+        $numOfBottomImages = $request['numOfBottomImages'];
+
+        for($i = 0; $i < $numOfBottomImages; $i++) {
+            $filename = 'bottomImage' . $i;
+            if($request->hasFile($filename)) {
+                $file = $request->file($filename);
+                $hashName = $file->hashName();
+                $file->move(base_path('public/imgs'), $hashName);
+
+                // save to database
+                $image = new ProductImage;
+                $image->product_id = $productId;
+                $image->image_url = 'imgs/' . $hashName;
+                $image->position = 2;    //bottom image
+                $image->sort_order = $sort_order +$i * 10;
+
+                $image->save();
+            }
+        }
+
+
+
+        $body = ['id' => $productId];
+
+        // return the product id
+        return response(json_encode($body), 200)->header('Access-Control-Allow-Origin', '*');
+    }
+
+    public function swap(Request $request) 
+    {
+        $i = (Product::select('sort_order')->where('id', $request[0])->get())[0];
+        $j = (Product::select('sort_order')->where('id', $request[1])->get())[0];
+
+        $i = (json_decode($i, true))['sort_order'];
+        $j = (json_decode($j, true))['sort_order'];
+
+        Product::find($request[0])->update(['sort_order' => $j]);
+        Product::find($request[1])->update(['sort_order' => $i]);
+
+        return response('sort_order swapped', 200);
+    }
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -130,8 +289,10 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($productId)
     {
-        //
+        Product::destroy($productId);
+
+        return respnse('deleted', 200);
     }
 }

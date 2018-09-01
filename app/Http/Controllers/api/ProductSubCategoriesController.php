@@ -51,9 +51,13 @@ class ProductSubCategoriesController extends Controller
         //
     }
 
-    public function showByCategoryId($id)
+    public function showByCategoryId($categoryId)
     {
-        return ProductSubCategory::select('id', 'name', 'description', 'sort_order')->where('product_category_id', $id)->orderBy('sort_order')->get();
+        return ProductSubCategory::select('id', 'name', 'description', 'sort_order', 'product_category_id')->where('product_category_id', $categoryId)->orderBy('sort_order')->get();
+    }
+
+    public function showBySubCategoryId($subCategoryId) {
+        return ProductSubCategory::select('id', 'name', 'description', 'sort_order', 'product_category_id')->where('id', $subCategoryId)->orderBy('sort_order')->get();
     }
 
     public function swap(Request $request) 
@@ -91,9 +95,19 @@ class ProductSubCategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $ProductSubCategory = ProductSubCategory::updateOrCreate(
+            ['id' => $request['id']],
+            [
+                'name' => $request['name'],
+                'description' => $request['description'],
+                'sort_order' => $request['sort_order'],
+                'product_category_id' => $request['product_category_id']
+            ]
+        );
+
+        return response("{'status', 1}", 200)->header('Content-type', 'application/json');
     }
 
     /**
@@ -102,8 +116,10 @@ class ProductSubCategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($categoryId)
     {
-        //
+        ProductSubCategory::destroy($categoryId);
+
+        return response('deleted', 200);     //
     }
 }

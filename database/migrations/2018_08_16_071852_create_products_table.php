@@ -16,7 +16,7 @@ class CreateProductsTable extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 255);
-            $table->string('description', 251);
+            $table->string('description', 600);
             $table->integer('product_sub_category_id')->unsigned();
             $table->foreign('product_sub_category_id')->references('id')->on('product_sub_categories')->delete('cascade');
             $table->string('product_sub_category_name');
@@ -25,7 +25,7 @@ class CreateProductsTable extends Migration
             $table->decimal('weight');
             $table->string('weight_unit', 6);
             $table->decimal('price');
-            $table->string('brand')->nullable();
+            $table->string('brand')->default('Venjong')->nullable();
             $table->integer('inventory')->unsigned();
             $table->string('thumbnail_url', 255);
             $table->integer('sold_amount')->unsiged()->nullable()->default(0);

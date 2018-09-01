@@ -21,6 +21,10 @@ class ProductCategoriesController extends Controller
         return ProductCategory::select('id', 'name', 'description', 'sort_order')->orderBy('sort_order')->get();
     }
 
+    public function index_console()
+    {
+        return ProductCategory::select('id', 'name', 'description', 'sort_order')->where('name', '!=', '全部产品')->orderBy('sort_order')->get();
+    }
     /**
      * Show the form for creating a new resource.
      *

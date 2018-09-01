@@ -99,18 +99,24 @@ class CustomersController extends Controller
             'access_token' => '',
             'address_check' => 0
         ];
+
         // step 1: Get sms code from memcached to check if code matches & expired
         /******************** code here */
         $stored_sms_code = Cache::get($request['mobile']);
+        Log::debug($stored_sms_code);
+
         if(!$stored_sms_code) {
           $response['text'] = 'SMS Code expired';
-        } else {
+
+          return response(json_encode($response), 404)->header('Content-type', 'application/json');
+        } 
 
         // step 2: verify if the sms code received matches with the one in Memcached
-        if(trim($request['sms_code']) === $stored_sms_code) {
+        if(trim($request['sms_code']) == $stored_sms_code) {
             // step 3: sms code matches then 
             // step 3-1: remove the sms code from Memcached
             /************************ code here */
+            Cache::forget($request['mobile']);
 
             // step 3-2:  check if he's or she's a new comer
             $user = Customer::select('id')->where('mobile', trim($request['mobile']))->get();
@@ -130,6 +136,8 @@ class CustomersController extends Controller
                 $newUser->mobile = $request['mobile'];
                 $newUser->access_token = '' . $access_token;
                 $newUser->save();
+
+                $response['text'] = 'New user: logged in, info saved';
             } else {
                 // old user, check if access token expired
                 if(!($this->checkToken($request['mobile']))) { 
@@ -141,25 +149,30 @@ class CustomersController extends Controller
                     $oldUser = Customer::find($userId);
                     $oldUser->access_token = $access_token;
                     $oldUser->save();
+
+                    $response['text'] = 'Old user: access token updated';
+
                 } 
 
-                // check if user info (name, shipping address) is valid
+                // check if user info (name, shipping address) is valid/has created valid shipping address
                 $username = Customer::select('username')->where('mobile', $request['mobile'])->get();
                 if((json_decode($username[0], true))['username'] == '') {
                     $response['address_check'] = SHIPPING_ADDRESS_CHECK_FAILURE;
+                    $response['text'] ="invalid shipping address";
                 } else {
                     $response['address_check'] = SHIPPING_ADDRESS_CHECK_SUCCESS;
+                    $response['text'] = 'valid shipping address';
                 }
 
             }
-          }
 
             $response['status'] = CONFIRM_SMS_CODE_SUCCESS;
-        } 
 
-        //return response('You are not authorized to access the resources! Incorrect SMS verification code', 403)
-                    //->content(json_encode($response));
-        return response(json_encode($response), 200)->header('Content-type', 'application/json');
+            return response(json_encode($response), 200)->header('Content-type', 'application/json');
+          }
+
+        $response['text'] ='Forbidden: not authorized to access';
+        return response(json_encode($response), 403)->header('Content-type', 'application/json');
     }
 
     public function genToken($mobile) {
@@ -188,26 +201,31 @@ class CustomersController extends Controller
     }
        
     public function createShippingAddress($request) {
+      Log::debug('saaaaaaaaaaaaaaaaaaaa');
         // get the id of the user with this
         $userIdArray = Customer::select('id')->where('mobile', $request['mobile'])->get();
-        $userId = (json_decode($userIdArray[0], true))['id'];
-        $user = Customer::find($userId);
-        $user->username = $request['username'];
-        $user->save();
+        if(sizeof($userIdArray) > 0) {
+          $userId = (json_decode($userIdArray[0], true))['id'];
+          $user = Customer::find($userId);
+          $user->username = $request['username'];
+          $user->save();
 
-        $address = ShippingAddress::updateOrCreate(
-            ['city' => $request['city'], 'street' => $request['street']],
-            [
-                'customer_id' => $userId,
-                'city' => $request['city'],
-                'street' => $request['street'],
-                'tel' => $request['tel'],
-                'default_address' => $request['default_address']
-            ]
-        );
+          $address = ShippingAddress::updateOrCreate(
+              ['city' => $request['city'], 'street' => $request['street']],
+              [
+                  'customer_id' => $userId,
+                  'city' => $request['city'],
+                  'street' => $request['street'],
+                  'tel' => $request['tel'],
+                  'default_address' => $request['default_address']
+              ]
+          );
 
 
-          return response('{"status": 1}', 200)->header('Content-type', 'application/json');
+            return response('{"status": 1}', 200)->header('Content-type', 'application/json');
+        } else {
+          return response('{"status": -1}', 404)->header('Content-type', 'application/json');
+        }
     }
 
 

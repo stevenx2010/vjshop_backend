@@ -23,19 +23,35 @@ Route::get('HomePageImages/images/{position}', 'HomePageImagesController@show');
 
 /*
 |--------------------------------------------------------------------------
-| Product Routes
+| Product Routes for Front End 
 |--------------------------------------------------------------------------
 */
 
 Route::get('product/categories', 'ProductCategoriesController@index');
+Route::get('product/categories/console', 'ProductCategoriesController@index_console');
 Route::post('product/categories', 'ProductCategoriesController@store');
 Route::post('product/categories/swap', 'ProductCategoriesController@swap');
 Route::get('product/categories/{productId}', 'ProductCategoriesController@show');
 Route::post('product/categories/update', 'ProductCategoriesController@update');
-Route::delete('product/categories/delete/{productId}', 'ProductCategoriesController@destroy');
+Route::delete('product/categories/delete/{categoryId}', 'ProductCategoriesController@destroy');
 
 Route::get('product/subcategories/categoryid/{categoryId}', 'productSubCategoriesController@showByCategoryId');
 Route::post('product/subcategories/swap', 'ProductSubCategoriesController@swap');
+Route::post('product/subcategories/update', 'ProductSubCategoriesController@update');
+Route::get('product/subcategories/subcategoryid/{subcategoryId}', 'productSubCategoriesController@showBySubCategoryId');
+Route::delete('product/subcategories/delete/{subCategoryId}', 'ProductSubCategoriesController@destroy');
+
+Route::post('product/product/update', 'ProductsController@update');
+Route::post('product/product/updateImage', 'ProductsController@updateImage');
+Route::get('product/products/bySubCatId/{productSubCategoryId}', 'ProductsController@showProductsBySubCategoryId');
+Route::delete('product/products/delete/{productId}', 'ProductsController@destroy');
+Route::post('product/products/swap', 'ProductsController@swap');
+/*
+|--------------------------------------------------------------------------
+| Product Routes for APP
+|--------------------------------------------------------------------------
+*/
+
 // Get all products
 Route::get('product/all', 'ProductsController@index');
 

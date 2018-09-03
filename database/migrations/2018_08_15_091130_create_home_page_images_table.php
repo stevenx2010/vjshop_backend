@@ -20,7 +20,7 @@ class CreateHomePageImagesTable extends Migration
             $table->tinyInteger('position')->unsigned();
             $table->smallInteger('width')->unsigned();
             $table->smallInteger('height')->unsigned();
-            $table->tinyInteger('sort_order')->unsigned();
+            $table->smallInteger('sort_order')->unsigned();
             $table->timestamps();
         });
     }

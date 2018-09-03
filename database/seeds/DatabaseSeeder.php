@@ -18,5 +18,11 @@ class DatabaseSeeder extends Seeder
         $this->call('ProductSubCategoriesTableSeeder');
         $this->call('ProductsTableSeeder');
         $this->call('ProductImagesTableSeeder');
+        $this->call('DistributorsTableSeeder');
+        $this->call('DistributorAddressesTableSeeder');
+        $this->call('DistributorContactsTableSeeder');
+        $this->call('CouponTypesTableSeeder');
+        $this->call('CouponsTableSeeder');
+        $this->call('CouponForNewComersTableSeeder');
     }
 }

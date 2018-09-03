@@ -17,8 +17,8 @@ class CreateOrdersTable extends Migration
             $table->increments('id');
             $table->integer('customer_id')->unsigned();
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
-         //   $table->integer('distributor_id')->unsigned();
-        //    $table->foreign('distributor_id')->references('id')->on('Distributors');
+            $table->integer('distributor_id')->unsigned();
+            $table->foreign('distributor_id')->references('id')->on('distributors')->onDelete('cascade');
             $table->decimal('total_price');
             $table->datetime('order_date');
             $table->datetime('delivery_date');

@@ -89,3 +89,22 @@ Route::post('customer/login', 'CustomersController@customerLogin');
 */
 Route::get('address/all/{mobile}', 'ShippingAddressController@show');
 Route::get('address/userid/{mobile}', 'ShippingAddressController@showUserId');
+
+
+/*
+|--------------------------------------------------------------------------
+| Distributor Related Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('distributor/address/{city}', 'DistributorController@showAddress');
+Route::get('distributor/contact/{distributorId}', 'DistributorController@showContact');
+Route::get('distributor/distributor/{distributorId}', 'DistributorController@show');
+
+/*
+|--------------------------------------------------------------------------
+| Coupon Related Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('coupon/types', 'CouponTypesController@show');
+Route::get('coupon/bytype/{typeId}', 'CouponsController@show');
+Route::get('coupon/newcomer', 'CouponsController@showNewComer');

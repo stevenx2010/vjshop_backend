@@ -59,7 +59,7 @@ class ProductsController extends Controller
     // Get product detail
     public function show($productId)
     {
-        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'weight')->where('id', $productId)->get();
+        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'weight', 'weight_unit', 'product_sub_category_name', 'product_sub_category_name')->where('id', $productId)->get();
     }
 
     public function showImages($productId, $position)

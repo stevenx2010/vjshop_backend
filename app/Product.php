@@ -17,4 +17,8 @@ class Product extends Model
     public function productSubCategories() {
     	return $this->belongsTo('App\ProductSubCategory');
     }
+
+    public function distributors() {
+    	return $this->belongsToMany('App\Distributor')->withPivot('inventory')->withTimestamps();
+    }
 }

@@ -10,11 +10,18 @@ class ProductSubCategory extends Model
 {
 	protected $fillable = ['name', 'description', 'sort_order', 'product_category_id'];
 	
-    public function productCategories() {
+    public function productCategories() 
+    {
     	return $this->belongsTo('App\ProductCategory');
     }
 
-    public function products() {
+    public function products() 
+    {
     	return $this->hasMany('App\Product');
+    }
+
+    public function couponTypes()
+    {
+    	return $this->belongsToMany('App\CouponType')->withTimestamps();
     }
 }

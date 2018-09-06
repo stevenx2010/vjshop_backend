@@ -27,4 +27,9 @@ class Distributor extends Model
     {
     	return $this->belongsToMany('App\Product')->withPivot('inventory')->withTimestamps();
     }
+
+    public function orders()
+    {
+        return $this->hasMany('App\Order');
+    }
 }

@@ -18,7 +18,7 @@ class CouponsTableSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         Coupon::create([
-        	'name' => '元优惠券',
+        	'name' => '40元优惠券',
         	'description' => '从购买金额中减去40元人民币',
         	'coupon_type_id' => 1,
         	'expire_date' => '2018-09-30',
@@ -31,8 +31,8 @@ class CouponsTableSeeder extends Seeder
         ]);
 
         Coupon::create([
-        	'name' => '元优惠券',
-        	'description' => '从购买金额中减去40元人民币',
+        	'name' => '50元优惠券',
+        	'description' => '从购买金额中减去50元人民币',
         	'coupon_type_id' => 1,
         	'expire_date' => '2018-09-30',
         	'expired' => false,
@@ -44,8 +44,8 @@ class CouponsTableSeeder extends Seeder
         ]);
 
         Coupon::create([
-        	'name' => '元优惠券',
-        	'description' => '从购买金额中减去40元人民币',
+        	'name' => '20元优惠券',
+        	'description' => '从购买金额中减去20元人民币',
         	'coupon_type_id' => 2,
         	'expire_date' => '2018-09-30',
         	'expired' => false,
@@ -57,7 +57,7 @@ class CouponsTableSeeder extends Seeder
         ]);
 
         Coupon::create([
-        	'name' => '折优惠券',
+        	'name' => '8折优惠券',
         	'description' => '购买金额8折优惠',
         	'coupon_type_id' => 3,
         	'expire_date' => '2018-09-30',

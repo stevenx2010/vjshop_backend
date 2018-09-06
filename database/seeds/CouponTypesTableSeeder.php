@@ -30,7 +30,7 @@ class CouponTypesTableSeeder extends Seeder
         ]);
 
         CouponType::create([
-        	'type' => '新人礼券',
+        	'type' => '冬季产品优惠券',
         	'description' => '对每个新注册的用户发放本优惠券',
         	'sort_order' => 30
         ]);

@@ -27,6 +27,7 @@ class CreateCouponsTable extends Migration
             $table->integer('quantity_initial')->unsigned();
             $table->integer('quantity_available')->unsigned();
             $table->string('image_url');
+            $table->boolean('for_new_comer')->default(false);
             $table->timestamps();
         });
     }

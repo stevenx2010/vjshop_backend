@@ -55,6 +55,12 @@ class ShippingAddressController extends Controller
         return Customer::find((json_decode($users[0], true))['id'])->addresses()->get();
     }
 
+    public function showDefault($mobile)
+    {
+        Log::debug($mobile);
+        return ShippingAddress::select('username', 'mobile', 'tel', 'city', 'street', 'customer_id', 'default_address')->where('default_address', true)->where('mobile', $mobile)->get();
+    }
+
    public function showUserId($mobile)
     {
         $userId = -1;

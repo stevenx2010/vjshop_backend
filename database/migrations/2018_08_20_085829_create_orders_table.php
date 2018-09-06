@@ -26,7 +26,6 @@ class CreateOrdersTable extends Migration
             $table->tinyInteger('payment_method');
             $table->tinyInteger('shipping_method');
             $table->decimal('shipping_charges');
-            $table->integer('shipping_address_id');
             $table->string('shipping_address');
             $table->tinyInteger('order_staus');     //0: not-pay-yet; 1: payed; 2: waiting for delivery; 3: in delivery; 4: received; 5: closed; 6:commented
             $table->boolean('is_invoice_required')->default(false);
@@ -48,6 +47,8 @@ class CreateOrdersTable extends Migration
         Schema::table('orders', function(Blueprint $table) {
             $table->dropForeign('customer_id');
             $table->dropColumn('customer_id');
+            $table->dropForeign('distributor_id');
+            $table->dropColumn('distributor_id');
         });
         Schema::dropIfExists('orders');
     }

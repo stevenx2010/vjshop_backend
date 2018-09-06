@@ -81,6 +81,7 @@ Route::post('product/products/ids', 'ProductsController@showProductsByIds');
 |--------------------------------------------------------------------------
 */
 Route::post('customer/login', 'CustomersController@customerLogin');
+Route::get('customer/check_user/{mobile}', 'CustomersController@showExist');
 
 /*
 |--------------------------------------------------------------------------
@@ -88,6 +89,7 @@ Route::post('customer/login', 'CustomersController@customerLogin');
 |--------------------------------------------------------------------------
 */
 Route::get('address/all/{mobile}', 'ShippingAddressController@show');
+Route::get('address/default/{mobile}', 'ShippingAddressController@showDefault');
 Route::get('address/userid/{mobile}', 'ShippingAddressController@showUserId');
 
 
@@ -108,3 +110,7 @@ Route::get('distributor/distributor/{distributorId}', 'DistributorController@sho
 Route::get('coupon/types', 'CouponTypesController@show');
 Route::get('coupon/bytype/{typeId}', 'CouponsController@show');
 Route::get('coupon/newcomer', 'CouponsController@showNewComer');
+Route::post('coupon/update/expire_status', 'CouponsController@updateExpireStatus');
+Route::get('coupon/coupons/mobile/{mobile}', 'CouponsController@showByMobile');
+Route::post('coupon/coupon_customer', 'CouponsController@updateCouponCustomerRelation');
+Route::get('coupon/coupons_filtered/{mobile}', 'CouponsController@showCouponsFiltered');

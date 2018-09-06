@@ -21,4 +21,8 @@ class Product extends Model
     public function distributors() {
     	return $this->belongsToMany('App\Distributor')->withPivot('inventory')->withTimestamps();
     }
+
+    public function orders() {
+        return $this->belongsToMany('App\Order')->withPivot('quantity')->withPivot('subtotal_price')->withTimestamps();
+    }
 }

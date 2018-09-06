@@ -65,6 +65,8 @@ class CustomersController extends Controller
     public function sendSMSCode($request) {
         // step 1: Generate a random number, then send SMS to sms_api & get status
         $rand_number = mt_rand(100000, 999999);
+        /********************for debug ********** remove it afterwards ***********/
+        $rand_number = 123456;
         $smsRequest = new SmsRequest($request['mobile'], $rand_number);
 
         $smsResponse = new SmsResponse();
@@ -97,7 +99,8 @@ class CustomersController extends Controller
             'text' => '',
             'mobile'=> $request['mobile'],
             'access_token' => '',
-            'address_check' => 0
+            'address_check' => 0,
+            'new_user' => false
         ];
 
         // step 1: Get sms code from memcached to check if code matches & expired
@@ -132,10 +135,13 @@ class CustomersController extends Controller
 
                 // then insert it into db
                 $newUser = new Customer;
-                $newUser->username = ''; // Currently have no username, will update after creating shipping address
+              //  $newUser->username = ''; // Currently have no username, will update after creating shipping address
                 $newUser->mobile = $request['mobile'];
                 $newUser->access_token = '' . $access_token;
+                $newUser->new_user =true;
                 $newUser->save();
+
+                $response['new_user'] = true;
 
                 $response['text'] = 'New user: logged in, info saved';
             } else {
@@ -155,7 +161,7 @@ class CustomersController extends Controller
                 } 
 
                 // check if user info (name, shipping address) is valid/has created valid shipping address
-                $username = Customer::select('username')->where('mobile', $request['mobile'])->get();
+                $username = ShippingAddress::select('username')->where('mobile', $request['mobile'])->get();
                 if((json_decode($username[0], true))['username'] == '') {
                     $response['address_check'] = SHIPPING_ADDRESS_CHECK_FAILURE;
                     $response['text'] ="invalid shipping address";
@@ -201,23 +207,25 @@ class CustomersController extends Controller
     }
        
     public function createShippingAddress($request) {
-      Log::debug('saaaaaaaaaaaaaaaaaaaa');
         // get the id of the user with this
         $userIdArray = Customer::select('id')->where('mobile', $request['mobile'])->get();
         if(sizeof($userIdArray) > 0) {
           $userId = (json_decode($userIdArray[0], true))['id'];
-          $user = Customer::find($userId);
-          $user->username = $request['username'];
-          $user->save();
+       //   $user = Customer::find($userId);
+      //    $user->username = $request['username'];
+      //    $user->save();
 
+          Log::debug($request);
           $address = ShippingAddress::updateOrCreate(
-              ['city' => $request['city'], 'street' => $request['street']],
+              ['city' => $request['city'], 'street' => $request['street'], 'customer_id' => $userId],
               [
                   'customer_id' => $userId,
+                  'username' => $request['username'],
+                  'mobile' => $request['mobile'],
                   'city' => $request['city'],
                   'street' => $request['street'],
                   'tel' => $request['tel'],
-                  'default_address' => $request['default_address']
+                  'default_address' => $request['default_address'],
               ]
           );
 
@@ -265,6 +273,17 @@ class CustomersController extends Controller
     public function show($id)
     {
         //
+    }
+
+    public function showExist($mobile) 
+    {
+        $user = Customer::select('id')->where('mobile', $mobile)->get();
+
+        if(sizeof($user) > 0) {
+          return response(json_encode(['status' => true]), 200);
+        } else {
+          return response(json_encode(['status' => false]), 200);
+        }
     }
 
     /**

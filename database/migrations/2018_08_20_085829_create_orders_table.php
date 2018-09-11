@@ -15,23 +15,26 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('order_serial', 16);
             $table->integer('customer_id')->unsigned();
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->integer('distributor_id')->unsigned();
             $table->foreign('distributor_id')->references('id')->on('distributors')->onDelete('cascade');
             $table->decimal('total_price');
+            $table->decimal('total_weight');
             $table->datetime('order_date');
-            $table->datetime('delivery_date');
+            $table->datetime('delivery_date')->nullable();
+            $table->datetime('delivery_confirm_date')->nullable();
             $table->tinyInteger('delivery_status');
-            $table->tinyInteger('payment_method');
-            $table->tinyInteger('shipping_method');
-            $table->decimal('shipping_charges');
-            $table->string('shipping_address');
-            $table->tinyInteger('order_staus');     //0: not-pay-yet; 1: payed; 2: waiting for delivery; 3: in delivery; 4: received; 5: closed; 6:commented
+            $table->tinyInteger('payment_method');  //1: Alipay; 2. Wechat
+            $table->tinyInteger('shipping_method')->nullable();
+            $table->decimal('shipping_charges')->default(0.00);
+            $table->integer('shipping_address_id')->unsigned();
+            $table->tinyInteger('order_status');     //1: not-pay-yet; 2: payed; 3: waiting for delivery; 4: in delivery; 5: received; 6: closed; 7:commented
             $table->boolean('is_invoice_required')->default(false);
-            $table->tinyInteger('invoice_status');    //0: not issued yet; 1: issued
-            $table->tinyInteger('invoice_type');    //0: persona;   1: enterprise
-            $table->string('invoice_head', 255)->default('个人');
+            $table->tinyInteger('invoice_status');    //1: not issued yet; 2: issued
+            $table->tinyInteger('invoice_type');    //1: persona;   2: enterprise
+            $table->string('invoice_head', 255)->nullable();
             $table->string('invoice_tax_number')->nullable();
             $table->timestamps();
         });

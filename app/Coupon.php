@@ -10,4 +10,9 @@ class Coupon extends Model
     {
     	return $this->belongsToMany('App\Customer')->withPivot('quantity')->withTimestamps();
     }
+
+    public function orders()
+    {
+    	return $this->belongsToMany('App\Order')->withTimestamps();
+    }
 }

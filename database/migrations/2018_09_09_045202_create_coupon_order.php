@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCommentsTable extends Migration
+class CreateCouponOrder extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,11 @@ class CreateCommentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('comments', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create('coupon_order', function (Blueprint $table) {
+            $table->integer('coupon_id')->unsigned();
+            $table->foreign('coupon_id')->references('id')->on('coupons')->onDelete('cascade');
             $table->integer('order_id')->unsigned();
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->tinyInteger('level')->unsigned();
-            $table->string('comment')->nullable();
-            $table->datetime('comment_date')->nullable();
-            $table->string('response')->nullable();
-            $table->datetime('response_date')->nullable();
             $table->timestamps();
         });
     }
@@ -33,10 +29,13 @@ class CreateCommentsTable extends Migration
      */
     public function down()
     {
-        Schema::table('orders', function(Blueprint $table) {
+         Schema::create('coupon_order', function (Blueprint $table) {
+            $table->dropForeign('coupon_id');
+            $table->dropColumn('coupon_id');
             $table->dropForeign('order_id');
             $table->dropColumn('order_id');
-        });        
-        Schema::dropIfExists('comments');
+         });
+
+        Schema::dropIfExists('coupon_order');
     }
 }

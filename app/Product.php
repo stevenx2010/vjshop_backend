@@ -23,6 +23,6 @@ class Product extends Model
     }
 
     public function orders() {
-        return $this->belongsToMany('App\Order')->withPivot('quantity')->withPivot('subtotal_price')->withTimestamps();
+        return $this->belongsToMany('App\Order')->withPivot('price')->withPivot('quantity')->withTimestamps();
     }
 }

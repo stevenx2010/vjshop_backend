@@ -58,7 +58,7 @@ class ShippingAddressController extends Controller
     public function showDefault($mobile)
     {
         Log::debug($mobile);
-        return ShippingAddress::select('username', 'mobile', 'tel', 'city', 'street', 'customer_id', 'default_address')->where('default_address', true)->where('mobile', $mobile)->get();
+        return ShippingAddress::select('id', 'username', 'mobile', 'tel', 'city', 'street', 'customer_id', 'default_address')->where('default_address', true)->where('mobile', $mobile)->get();
     }
 
    public function showUserId($mobile)
@@ -71,11 +71,11 @@ class ShippingAddressController extends Controller
 
         if(!empty(json_decode($users, true))) { 
             $userId = (json_decode($users[0], true))['id'];
-            $addresses = ShippingAddress::find($userId)->get();
-            return json_encode(['userid' => $userId, 'has_address' => count($addresses)]);
+            $addresses = Customer::find($userId)->addresses()->get();
+            return json_encode(['user_id' => $userId, 'has_number_of_addresses' => count($addresses)]);
         } 
 
-        return json_encode(['userid' => $userId, 'has_address' => $addresses]);
+        return json_encode(['user_id' => $userId, 'has_number_of_address' => $addresses]);
     }
     /**
      * Show the form for editing the specified resource.

@@ -101,6 +101,8 @@ Route::get('address/userid/{mobile}', 'ShippingAddressController@showUserId');
 Route::get('distributor/address/{city}', 'DistributorController@showAddress');
 Route::get('distributor/contact/{distributorId}', 'DistributorController@showContact');
 Route::get('distributor/distributor/{distributorId}', 'DistributorController@show');
+Route::get('distributor/login/{mobile}', 'DistributorController@login');
+Route::get('distributor/orders/{mobile}', 'DistributorController@showOrders');
 
 /*
 |--------------------------------------------------------------------------
@@ -114,3 +116,11 @@ Route::post('coupon/update/expire_status', 'CouponsController@updateExpireStatus
 Route::get('coupon/coupons/mobile/{mobile}', 'CouponsController@showByMobile');
 Route::post('coupon/coupon_customer', 'CouponsController@updateCouponCustomerRelation');
 Route::get('coupon/coupons_filtered/{mobile}', 'CouponsController@showCouponsFiltered');
+
+/*
+|--------------------------------------------------------------------------
+| Order Related Routes
+|--------------------------------------------------------------------------
+*/
+Route::post('order/submit', 'OrderController@update');
+Route::get('order/update/delivery/{orderId}/{status}/{datetime}', 'OrderController@updateDeliveryStatus');

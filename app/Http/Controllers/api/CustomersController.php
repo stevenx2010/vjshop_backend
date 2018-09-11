@@ -229,8 +229,13 @@ class CustomersController extends Controller
               ]
           );
 
+          $resp = [
+            "status" => 1,
+            "address" => json_decode($address, true)
+          ];
 
-            return response('{"status": 1}', 200)->header('Content-type', 'application/json');
+          Log::debug($address);
+            return response(json_encode($resp), 200)->header('Content-type', 'application/json');
         } else {
           return response('{"status": -1}', 404)->header('Content-type', 'application/json');
         }
@@ -279,7 +284,7 @@ class CustomersController extends Controller
     {
         $user = Customer::select('id')->where('mobile', $mobile)->get();
 
-        if(sizeof($user) > 0) {
+        if(count($user) > 0) {
           return response(json_encode(['status' => true]), 200);
         } else {
           return response(json_encode(['status' => false]), 200);

@@ -14,12 +14,12 @@ class CreateOrderProduct extends Migration
     public function up()
     {
         Schema::create('order_product', function (Blueprint $table) {
-            $table->interger('product_id')->unsigned()->nullable();
+            $table->integer('product_id')->unsigned()->nullable();
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->integer('order_id')->unsigned()->nullable();
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->integer('quantity')->default(0);
-            $table->decimal('subtotal_price')->default(0.0);
+            $table->decimal('price')->default(0.0);
             $table->timestamps();
         });
     }
@@ -31,7 +31,7 @@ class CreateOrderProduct extends Migration
      */
     public function down()
     {
-        Schema::table('coupon_customer', function(Blueprint $table) {
+        Schema::table('order_product', function(Blueprint $table) {
             $table->dropForeign('product_id');
             $table->dropColumn('product_id');
             $table->dropForeign('order_id');

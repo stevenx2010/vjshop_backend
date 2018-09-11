@@ -18,15 +18,23 @@ class HomePageImagesTableSeeder extends Seeder
         HomePageImage::create([
         	'image_url' => 'imgs/test01.jpg',
         	'position' => 1,
-        	'width' => 1920,
+        	'width' => 960,
         	'height' => 550,
         	'sort_order' => 1
         ]);
- 
+
+        HomePageImage::create([
+            'image_url' => 'imgs/test01-2.jpg',
+            'position' => 1,
+            'width' => 960,
+            'height' => 550,
+            'sort_order' => 2
+        ]);
+  
         HomePageImage::create([
         	'image_url' => 'imgs/test02.jpg',
         	'position' => 1,
-        	'width' => 1920,
+        	'width' => 960,
         	'height' => 550,
         	'sort_order' => 2
         ]);
@@ -34,14 +42,14 @@ class HomePageImagesTableSeeder extends Seeder
         HomePageImage::create([
         	'image_url' => 'imgs/test03.jpg',
         	'position' => 1,
-        	'width' => 1920,
+        	'width' => 960,
         	'height' => 550,
         	'sort_order' => 3
         ]);
  
 
         HomePageImage::create([
-            'image_url' => 'imgs/new_reg.png',
+            'image_url' => 'imgs/new_reg.jpg',
             'position' => 2,
             'width' => 300,
             'height' => 126,
@@ -49,7 +57,7 @@ class HomePageImagesTableSeeder extends Seeder
         ]);
 
         HomePageImage::create([
-            'image_url' => 'imgs/coupon_bg.png',
+            'image_url' => 'imgs/coupon_bg.jpg',
             'position' => 3,
             'width' => 300,
             'height' => 126,

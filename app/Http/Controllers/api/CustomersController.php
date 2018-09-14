@@ -207,38 +207,40 @@ class CustomersController extends Controller
     }
        
     public function createShippingAddress($request) {
-        // get the id of the user with this
-        $userIdArray = Customer::select('id')->where('mobile', $request['mobile'])->get();
-        if(sizeof($userIdArray) > 0) {
-          $userId = (json_decode($userIdArray[0], true))['id'];
-       //   $user = Customer::find($userId);
-      //    $user->username = $request['username'];
-      //    $user->save();
+      $userId = $request['user_id'];
 
-          Log::debug($request);
-          $address = ShippingAddress::updateOrCreate(
-              ['city' => $request['city'], 'street' => $request['street'], 'customer_id' => $userId],
-              [
-                  'customer_id' => $userId,
-                  'username' => $request['username'],
-                  'mobile' => $request['mobile'],
-                  'city' => $request['city'],
-                  'street' => $request['street'],
-                  'tel' => $request['tel'],
-                  'default_address' => $request['default_address'],
-              ]
-          );
+      // check if user id is null, if so, find userid by mobile
+      if(!$userId) {
+        $user = Customer::where('mobile', $request['mobile'])->get();
+        $userId = (json_decode($user, true))[0]['id'];
+      }
 
-          $resp = [
-            "status" => 1,
-            "address" => json_decode($address, true)
-          ];
+      //If this address is default address, then clear all DEFAULT mark of the records in db
+      if($request['default_address']){
+        ShippingAddress::where('customer_id', $request['user_id'])->update(['default_address' => 0]);
+      } 
 
-          Log::debug($address);
-            return response(json_encode($resp), 200)->header('Content-type', 'application/json');
-        } else {
-          return response('{"status": -1}', 404)->header('Content-type', 'application/json');
-        }
+      Log::debug($request);
+      $address = ShippingAddress::updateOrCreate(
+          ['city' => $request['city'], 'street' => $request['street'], 'customer_id' => $userId],
+          [
+              'customer_id' => $userId,
+              'username' => $request['username'],
+              'mobile' => $request['mobile'],
+              'city' => $request['city'],
+              'street' => $request['street'],
+              'tel' => $request['tel'],
+              'default_address' => $request['default_address'],
+          ]
+      );
+
+      $resp = [
+        "status" => 1,
+        "address" => json_decode($address, true)
+      ];
+
+      Log::debug($address);
+      return response(json_encode($resp), 200)->header('Content-type', 'application/json');
     }
 
 

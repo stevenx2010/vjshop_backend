@@ -57,8 +57,10 @@ class ShippingAddressController extends Controller
 
     public function showDefault($mobile)
     {
-        Log::debug($mobile);
-        return ShippingAddress::select('id', 'username', 'mobile', 'tel', 'city', 'street', 'customer_id', 'default_address')->where('default_address', true)->where('mobile', $mobile)->get();
+        $user = Customer::where('mobile', $mobile)->get();
+        $userId = (json_decode($user, true))[0]['id'];
+
+        return ShippingAddress::select('id', 'username', 'mobile', 'tel', 'city', 'street', 'customer_id', 'default_address')->where('default_address', true)->where('customer_id', $userId)->get();
     }
 
    public function showUserId($mobile)
@@ -108,6 +110,26 @@ class ShippingAddressController extends Controller
      */
     public function destroy($id)
     {
-        //
+        //check if the address is default_address
+        $address = ShippingAddress::find($id);
+        Log::debug($address);
+        $default_address = (json_decode($address, true))['default_address'];
+        $userId = (json_decode($address, true))['customer_id']; 
+
+        if($default_address) {
+            Log::debug($userId);
+            ShippingAddress::destroy($id);
+            $user = Customer::find($userId);
+            $addresses = $user->addresses()->get();
+            $address_array = json_decode($addresses, true);
+            $address_id = $address_array[0]['id'];
+
+            $first_found_address = ShippingAddress::find($address_id);
+            $first_found_address->default_address = 1;
+            $first_found_address->save();
+
+        } else {
+            ShippingAddress::destroy($id);
+        }
     }
 }

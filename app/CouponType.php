@@ -10,4 +10,9 @@ class CouponType extends Model
     {
     	return $this->belongsToMany('App\ProductSubCategory')->withTimestamps();
     }
+
+    public function coupons()
+    {
+    	return $this->hasMany('App\Coupon');
+    }
 }

@@ -229,6 +229,27 @@ class DistributorController extends Controller
         return response(json_encode($resp));
     }
 
+    public function showInventoryByProductId($distributorId, $productId)
+    {    
+        Log::debug($distributorId);
+        Log::debug($productId);
+
+        $inventory = 0;
+
+        $distributor = Distributor::find($distributorId);
+
+        foreach ($distributor->products as $product) {
+            if($product['id'] == $productId) {
+                $inventory = $product->pivot->inventory;
+
+                return $inventory;
+            }
+        }
+
+        return $inventory;
+    }
+
+
     /**
      * Show the form for editing the specified resource.
      *

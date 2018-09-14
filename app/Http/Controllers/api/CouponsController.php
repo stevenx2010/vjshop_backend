@@ -104,12 +104,13 @@ class CouponsController extends Controller
     public function updateCouponCustomerRelation(Request $request) {
         Log::debug($request);
         $id = Customer::select('id')->where('mobile', $request['mobile'])->get();
+        Log::debug($id[0]->id);
         $user = Customer::find($id[0]->id);
 
         $coupon_id = $request['id'];
         $coupon = Coupon::find($coupon_id);
 
-        if($user->coupons->contains($user)) {
+        if($user->coupons->contains($coupon)) {
             return response('duplicate', 200);
         } else {
             $user->coupons()->attach([$coupon_id => ['quantity' => 1]]);

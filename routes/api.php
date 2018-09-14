@@ -113,6 +113,7 @@ Route::get('customer/check_user/{mobile}', 'CustomersController@showExist');
 Route::get('address/all/{mobile}', 'ShippingAddressController@show');
 Route::get('address/default/{mobile}', 'ShippingAddressController@showDefault');
 Route::get('address/userid/{mobile}', 'ShippingAddressController@showUserId');
+Route::delete('address/id/{addressId}', 'ShippingAddressController@destroy');
 
 
 /*
@@ -127,6 +128,7 @@ Route::get('distributor/login/{mobile}', 'DistributorController@login');
 Route::get('distributor/orders/{mobile}', 'DistributorController@showOrders');
 Route::get('distributor/inventories/{mobile}', 'DistributorController@showInventories');
 Route::get('distributor/info/mobile/{mobile}', 'DistributorController@showInfoByMobile');
+Route::get('distributor/inventory/productId/{distributorId}/{productId}', 'DistributorController@showInventoryByProductId');
 
 /*
 |--------------------------------------------------------------------------

@@ -15,4 +15,9 @@ class Coupon extends Model
     {
     	return $this->belongsToMany('App\Order')->withTimestamps();
     }
+
+    public function couponType()
+    {
+    	return $this->belongsTo('App\couponType');
+    }
 }

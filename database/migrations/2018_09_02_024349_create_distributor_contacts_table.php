@@ -17,8 +17,8 @@ class CreateDistributorContactsTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->char('mobile', 11);
-            $table->char('telephone', 8);
-            $table->char('phone_area_code', 4);
+            $table->char('telephone', 8)->nullable();
+            $table->char('phone_area_code', 4)->nullable();
             $table->boolean('default_contact')->default(false);
             $table->integer('distributor_id')->unsigned();
             $table->foreign('distributor_id')->references('id')->on('distributors')->onDelete('cascade');

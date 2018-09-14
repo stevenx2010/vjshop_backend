@@ -46,6 +46,28 @@ Route::post('product/product/updateImage', 'ProductsController@updateImage');
 Route::get('product/products/bySubCatId/{productSubCategoryId}', 'ProductsController@showProductsBySubCategoryId');
 Route::delete('product/products/delete/{productId}', 'ProductsController@destroy');
 Route::post('product/products/swap', 'ProductsController@swap');
+Route::get('product/query/keyword/{keyword}/{subCatId}', 'ProductsController@showByKeyword');
+
+/*
+|--------------------------------------------------------------------------
+| Distributor Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::post('distributor/info/update', 'DistributorController@updateInfo');
+Route::post('distributor/address/update', 'DistributorController@updateAddress');
+Route::post('distributor/contact/update', 'DistributorController@updateContact');
+Route::get('distributor/info/query/{keyword}', 'DistributorController@showInfo');
+Route::get('distributor/inventory/query/{distributorId}', 'DistributorController@showInventory');
+Route::post('distributor/inventory/increase', 'DistributorController@putInventory');
+
+
+/*
+|--------------------------------------------------------------------------
+| Routes for APP
+|--------------------------------------------------------------------------
+*/
+
+
 /*
 |--------------------------------------------------------------------------
 | Product Routes for APP
@@ -103,6 +125,8 @@ Route::get('distributor/contact/{distributorId}', 'DistributorController@showCon
 Route::get('distributor/distributor/{distributorId}', 'DistributorController@show');
 Route::get('distributor/login/{mobile}', 'DistributorController@login');
 Route::get('distributor/orders/{mobile}', 'DistributorController@showOrders');
+Route::get('distributor/inventories/{mobile}', 'DistributorController@showInventories');
+Route::get('distributor/info/mobile/{mobile}', 'DistributorController@showInfoByMobile');
 
 /*
 |--------------------------------------------------------------------------

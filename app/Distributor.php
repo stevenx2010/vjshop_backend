@@ -8,6 +8,8 @@ use App\DistributorAddress;
 
 class Distributor extends Model
 {
+    protected $fillable = [ 'name', 'description'];
+
     public function addresses() 
     {
     	return $this->hasMany('App\DistributorAddress');

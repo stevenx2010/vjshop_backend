@@ -107,6 +107,15 @@ class ProductsController extends Controller
         return Product::select('id', 'name', 'product_sub_category_id', 'product_sub_category_name', 'description', 'model', 'price', 'weight', 'package_unit', 'weight_unit', 'sold_amount', 'thumbnail_url', 'sort_order')->where('product_sub_category_id', $productSubCategoryId)->orderBy('sort_order')->get();
     }
 
+    public function showByKeyword($keyword, $subCatId) {
+        Log::debug($keyword);
+        Log::debug($subCatId);
+        if($keyword == '*') 
+            return Product::where('product_sub_category_id', $subCatId)->get();
+        else
+            return Product::where('name', 'like', '%' . $keyword . '%')->where('product_sub_category_id', $subCatId)->get();
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

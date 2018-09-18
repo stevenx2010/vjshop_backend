@@ -18,7 +18,7 @@ class DistributorContactsTableSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
         DistributorContact::create([
         	'name' => '李四',
-        	'mobile' => '18910109898',
+        	'mobile' => '13601240582',
         	'telephone' => '66668888',
         	'phone_area_code' => '010',
         	'distributor_id' => 1,

@@ -1,4 +1,5 @@
 <?php
+
 abstract class InvoiceType {
 	const PERSONAL = 1;
 	const ENTERPRISE = 2;
@@ -9,14 +10,6 @@ abstract class InvoiceStatus {
 	const ISSUED = 2;
 }
 
-abstract class OrderStatus {
-	const NOT_PAY_YET = 1;
-	const PAYED = 2;
-	const CLOSED = 3;
-	const CANCELED = 4;
-	const COMMENTED = 5;
-	const NOT_COMMENTED = 6;
-}
 
 
 

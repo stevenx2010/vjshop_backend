@@ -29,7 +29,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 90.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/v350-100.png',
+        	'thumbnail_url' => 'imgs/v350-100-s.jpg',
             'sold_amount' => 1,
         	'sort_order' => 1
         ]);
@@ -46,7 +46,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 110.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/v350-ws.png',
+        	'thumbnail_url' => 'imgs/v350-ws-s.jpg',
             'sold_amount' => 0,
         	'sort_order' => 2
         ]);    
@@ -63,7 +63,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 90.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/v350.png',
+        	'thumbnail_url' => 'imgs/v350-s.jpg',
             'sold_amount' => 0,
         	'sort_order' => 3
         ]);  
@@ -80,7 +80,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 90.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/v350-w100.png',
+        	'thumbnail_url' => 'imgs/v350-w100-s.jpg',
             'sold_amount' => 0,
         	'sort_order' => 4
         ]); 
@@ -97,7 +97,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 90.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/v355.png',
+        	'thumbnail_url' => 'imgs/v355-s.jpg',
         	'sort_order' => 5
         ]);
 
@@ -114,7 +114,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 485.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/v01.png',
+        	'thumbnail_url' => 'imgs/v01-s.jpg',
         	'sort_order' => 1
         ]);
 
@@ -130,7 +130,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 475.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/v02.png',
+        	'thumbnail_url' => 'imgs/v02-s.jpg',
         	'sort_order' => 1
         ]);
 
@@ -146,7 +146,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 480.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/v03.png',
+        	'thumbnail_url' => 'imgs/v03-s.jpg',
         	'sort_order' => 1
         ]);
 
@@ -163,7 +163,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 485.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/w01.png',
+        	'thumbnail_url' => 'imgs/w01-s.jpg',
         	'sort_order' => 1
         ]);
 
@@ -179,7 +179,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 475.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/w02.png',
+        	'thumbnail_url' => 'imgs/w02-s.jpg',
         	'sort_order' => 1
         ]);
 
@@ -195,7 +195,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 480.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/w03.png',
+        	'thumbnail_url' => 'imgs/w03-s.jpg',
         	'sort_order' => 1
         ]);
 
@@ -212,7 +212,7 @@ class ProductsTableSeeder extends Seeder
         	'price' => 520.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/t-pro.png',
+        	'thumbnail_url' => 'imgs/t-pro-s.jpg',
         	'sort_order' => 1
         ]);
 
@@ -228,9 +228,24 @@ class ProductsTableSeeder extends Seeder
         	'price' => 380.0,
         	'brand' => 'Venjong',
         	'inventory' => 1000,
-        	'thumbnail_url' => 'imgs/t-smart.png',
+        	'thumbnail_url' => 'imgs/t-smart-s.jpg',
         	'sort_order' => 1
         ]);
 
+        Product::create([
+            'name' => '平衡块拆卸工具',
+            'description' => '本工具用于平衡块的拆卸，不留痕迹，方便实用。',
+            'product_sub_category_id' => 5,
+            'product_sub_category_name' => '辅助工具',
+            'model' => 'Tool01',
+            'package_unit' => '个',
+            'weight' => 0.1,
+            'weight_unit' => 'kg',
+            'price' => 38.0,
+            'brand' => 'Venjong',
+            'inventory' => 1000,
+            'thumbnail_url' => 'imgs/tool01-s.jpg',
+            'sort_order' => 1
+        ]);
     }
 }

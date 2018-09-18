@@ -19,14 +19,14 @@ class DistributorAddressesTableSeeder extends Seeder
 
         DistributorAddress::create([
         	'distributor_id' => 1,
-        	'city' => '北京市东城区',
+        	'city' => '北京市 市辖区 东城区',
         	'street' => '东单甲一号副288号',
         	'default_address' => true,
         ]);
 
         DistributorAddress::create([
         	'distributor_id' => 1,
-        	'city' => '北京市丰台区',
+        	'city' => '北京市 市辖区 丰台区',
         	'street' => '马家楼3122号',
         	'default_address' => false,
         ]);

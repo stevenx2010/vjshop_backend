@@ -8,8 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Order;
 use App\Product;
 use App\Coupon;
+use App\Customer;
 
 use App\Libraries\Utilities\DeliveryStatus;
+use App\Libraries\Utilities\OrderStatus;
+use App\Libraries\Utilities\CommentStatus;
 
 use Illuminate\Support\Facades\Log;
 
@@ -55,6 +58,69 @@ class OrderController extends Controller
     public function show($id)
     {
         //
+    }
+
+    public function showOrdersByStatus($mobile, $orderStatus) 
+    {
+        Log::debug($mobile);
+        $user = Customer::where('mobile', $mobile);
+        $userId = (json_decode($user->get(), true))[0]['id'];
+        $user_obj = Customer::find($userId);
+
+        switch($orderStatus) {
+            case 'to_pay':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::NOT_PAY_YET)->get();
+                $final_resp = $this->processOrders($orders);
+                break;
+            case 'to_delivery':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAYED)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
+                $final_resp = $this->processOrders($orders);
+                break;
+            case 'to_receive':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->orWhere('order_status', OrderStatus::COMMENTED)->where('delivery_status', DeliveryStatus::CONFIRMED)->get();
+                $final_resp = $this->processOrders($orders);            
+                break;
+            case 'to_comment':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->where('delivery_status', DeliveryStatus::CONFIRMED)->where('comment_status', CommentStatus::NOT_COMMENTED)->get();
+                $final_resp = $this->processOrders($orders);
+                break;
+        }
+
+        usort($final_resp, array($this, 'cmp'));
+
+        return json_encode($final_resp);
+    }
+
+    public function cmp($a, $b)
+    {
+        return strcmp($b['order_date'], $a['order_date']);
+    }
+
+    // Helper function
+    public function processOrders($orders) {
+        $final_resp = [];
+        foreach ($orders as $order) {
+            $products = $order->products()->get();
+            $shoppingItem = [];
+            $shoppingItems = [];
+            foreach($products as $product) {
+
+                $shoppingItem['productId'] = $product->id;
+                $shoppingItem['quantity'] = $product->pivot->quantity;
+                $shoppingItem['price'] = $product->pivot->price;
+                $shoppingItem['weight'] = $product->weight;
+                $shoppingItem['weight_unit'] = $product->weight_unit;
+                $shoppingItem['selected'] = true;
+
+                array_push($shoppingItems, $shoppingItem);
+
+                $resp = json_decode($order, true);
+                $resp['products'] = $shoppingItems;
+            }
+
+            array_push($final_resp, $resp);
+        }
+        return $final_resp;
     }
 
     /**
@@ -128,8 +194,18 @@ class OrderController extends Controller
             }
         }
 
+        // set these coupons as used
+        $user = Customer::find($request['customer_id']);
+
         // Attach/Update coupons
         foreach($request['coupon_used_ids'] as $id) {
+            foreach($user->coupons as $c) {
+                if($c['id'] == $id) {
+                    $user->coupons()->detach($id);
+                    $user->coupons()->attach([$id => ['quantity' => 0]]);
+                }
+            }
+
             $coupon = Coupon::find($id);
 
             if(!$thisOrder->coupons->contains($coupon)) {
@@ -145,8 +221,9 @@ class OrderController extends Controller
         if($order != null) {
             $order->delivery_status = $status;
             switch($status) {
-                case DeliveryStatus::RECEIVED:
+                case DeliveryStatus::DELIVERED_NOT_CONFIRM:
                     $order->delivery_date = $datetime;
+                    $order->order_status = OrderStatus::RECEIVED;
                     break;
                 case DeliveryStatus::CONFIRMED:
                     $order->delivery_confirm_date = $datetime;
@@ -164,6 +241,10 @@ class OrderController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Log::debug($id);
+        $order = Order::find($id);
+        $order->delete();  
+
+        return Response('deleted', 200);   
     }
 }

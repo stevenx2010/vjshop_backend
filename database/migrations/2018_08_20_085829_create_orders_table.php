@@ -31,6 +31,7 @@ class CreateOrdersTable extends Migration
             $table->decimal('shipping_charges')->default(0.00);
             $table->integer('shipping_address_id')->unsigned();
             $table->tinyInteger('order_status');     //1: not-pay-yet; 2: payed; 3: waiting for delivery; 4: in delivery; 5: received; 6: closed; 7:commented
+            $table->tinyInteger('comment_status')->unsigned()->default(1); //1: not commented, 2: commented 
             $table->boolean('is_invoice_required')->default(false);
             $table->tinyInteger('invoice_status');    //1: not issued yet; 2: issued
             $table->tinyInteger('invoice_type');    //1: persona;   2: enterprise

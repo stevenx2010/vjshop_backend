@@ -20,6 +20,7 @@ class CreateOrderProduct extends Migration
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->integer('quantity')->default(0);
             $table->decimal('price')->default(0.0);
+            $table->boolean('commented')->default(false);
             $table->timestamps();
         });
     }

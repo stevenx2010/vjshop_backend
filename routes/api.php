@@ -128,6 +128,7 @@ Route::get('distributor/login/{mobile}', 'DistributorController@login');
 Route::get('distributor/orders/{mobile}', 'DistributorController@showOrders');
 Route::get('distributor/inventories/{mobile}', 'DistributorController@showInventories');
 Route::get('distributor/info/mobile/{mobile}', 'DistributorController@showInfoByMobile');
+Route::get('distributor/info/city/{city}', 'DistributorController@showInfoByLocation');
 Route::get('distributor/inventory/productId/{distributorId}/{productId}', 'DistributorController@showInventoryByProductId');
 
 /*
@@ -150,3 +151,15 @@ Route::get('coupon/coupons_filtered/{mobile}', 'CouponsController@showCouponsFil
 */
 Route::post('order/submit', 'OrderController@update');
 Route::get('order/update/delivery/{orderId}/{status}/{datetime}', 'OrderController@updateDeliveryStatus');
+Route::get('order/myorders/{mobile}/{orderStatus}', 'OrderController@showOrdersByStatus');
+Route::delete('order/delete/id/{orderId}', 'OrderController@destroy');
+
+
+/*
+|--------------------------------------------------------------------------
+| Comment Related Routes
+|--------------------------------------------------------------------------
+*/
+Route::post('comment/update', 'CommentController@update');
+Route::get('comment/show/{mobile}', 'CommentController@showByMobile');
+Route::get('comment/not_commented/{orderId}', 'CommentController@showProductsNotCommented');

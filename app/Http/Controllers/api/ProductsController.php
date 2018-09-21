@@ -90,13 +90,13 @@ class ProductsController extends Controller
         $products = [];
 
         foreach ($req as $key) {
-            if($key['selected']) {
+          //  if($key['selected']) {
                 $productId = $key['productId'];
                 
                 $product = Product::select('id', 'name', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url','price', 'sold_amount', 'weight')->where('id', $productId)->get();
 
                 array_push($products, $product);
-            }
+         //   }
         }
     
         return response(json_encode($products), 200)->header('Content-type', 'application/json');

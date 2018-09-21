@@ -37,5 +37,282 @@ class ProductImagesTableSeeder extends Seeder
             'position' => 1,
             'sort_order' => 1
         ]);
+
+// v01
+        ProductImage::create([
+            'product_id' => 6,
+            'image_url' => 'imgs/v01-1-m.jpg',
+            'position' => 1,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 6,
+            'image_url' => 'imgs/v01-2-m.jpg',
+            'position' => 1,
+            'sort_order' => 20
+        ]);
+
+        ProductImage::create([
+            'product_id' => 6,
+            'image_url' => 'imgs/v01-3-m.jpg',
+            'position' => 1,
+            'sort_order' => 30
+        ]);
+
+        ProductImage::create([
+            'product_id' => 6,
+            'image_url' => 'imgs/v01-4-m.jpg',
+            'position' => 1,
+            'sort_order' => 40
+        ]);
+//-----------------------------------------------------
+        ProductImage::create([
+            'product_id' => 6,
+            'image_url' => 'imgs/v01-1-m.jpg',
+            'position' => 2,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 6,
+            'image_url' => 'imgs/v01-2-m.jpg',
+            'position' => 2,
+            'sort_order' => 20
+        ]);
+
+        ProductImage::create([
+            'product_id' => 6,
+            'image_url' => 'imgs/v01-3-m.jpg',
+            'position' => 2,
+            'sort_order' => 30
+        ]);
+
+        ProductImage::create([
+            'product_id' => 6,
+            'image_url' => 'imgs/v01-4-m.jpg',
+            'position' => 2,
+            'sort_order' => 40
+        ]);
+
+// v02
+        ProductImage::create([
+            'product_id' => 7,
+            'image_url' => 'imgs/v02-1-m.jpg',
+            'position' => 1,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 7,
+            'image_url' => 'imgs/v02-2-m.jpg',
+            'position' => 1,
+            'sort_order' => 20
+        ]);
+
+        ProductImage::create([
+            'product_id' => 7,
+            'image_url' => 'imgs/v02-3-m.jpg',
+            'position' => 1,
+            'sort_order' => 30
+        ]);
+
+        ProductImage::create([
+            'product_id' => 7,
+            'image_url' => 'imgs/v02-4-m.jpg',
+            'position' => 1,
+            'sort_order' => 40
+        ]);
+
+//------------------------------------------------
+        ProductImage::create([
+            'product_id' => 7,
+            'image_url' => 'imgs/v02-1-m.jpg',
+            'position' => 2,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 7,
+            'image_url' => 'imgs/v02-2-m.jpg',
+            'position' => 2,
+            'sort_order' => 20
+        ]);
+
+        ProductImage::create([
+            'product_id' => 7,
+            'image_url' => 'imgs/v02-3-m.jpg',
+            'position' => 2,
+            'sort_order' => 30
+        ]);
+
+        ProductImage::create([
+            'product_id' => 7,
+            'image_url' => 'imgs/v02-4-m.jpg',
+            'position' => 2,
+            'sort_order' => 40
+        ]);
+
+
+//v03
+        ProductImage::create([
+            'product_id' => 8,
+            'image_url' => 'imgs/v03-1-m.jpg',
+            'position' => 1,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 8,
+            'image_url' => 'imgs/v03-2-m.jpg',
+            'position' => 1,
+            'sort_order' => 20
+        ]);
+//------------------------------------------
+        ProductImage::create([
+            'product_id' => 8,
+            'image_url' => 'imgs/v03-1-m.jpg',
+            'position' => 2,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 8,
+            'image_url' => 'imgs/v03-2-m.jpg',
+            'position' => 2,
+            'sort_order' => 20
+        ]);
+
+
+
+//w01
+        ProductImage::create([
+            'product_id' => 9,
+            'image_url' => 'imgs/w01-1-m.jpg',
+            'position' => 1,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 9,
+            'image_url' => 'imgs/w01-2-m.jpg',
+            'position' => 1,
+            'sort_order' => 20
+        ]);
+
+        ProductImage::create([
+            'product_id' => 9,
+            'image_url' => 'imgs/w01-3-m.jpg',
+            'position' => 1,
+            'sort_order' => 30
+        ]);
+
+        ProductImage::create([
+            'product_id' => 9,
+            'image_url' => 'imgs/w01-4-m.jpg',
+            'position' => 1,
+            'sort_order' => 40
+        ]);
+//-----------------------------------------------
+        ProductImage::create([
+            'product_id' => 9,
+            'image_url' => 'imgs/w01-1-m.jpg',
+            'position' => 2,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 9,
+            'image_url' => 'imgs/w01-2-m.jpg',
+            'position' => 2,
+            'sort_order' => 20
+        ]);
+
+        ProductImage::create([
+            'product_id' => 9,
+            'image_url' => 'imgs/w01-3-m.jpg',
+            'position' => 2,
+            'sort_order' => 30
+        ]);
+
+        ProductImage::create([
+            'product_id' => 9,
+            'image_url' => 'imgs/w01-4-m.jpg',
+            'position' => 2,
+            'sort_order' => 40
+        ]);
+
+
+//w02
+        ProductImage::create([
+            'product_id' => 10,
+            'image_url' => 'imgs/w02-1-m.jpg',
+            'position' => 1,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 10,
+            'image_url' => 'imgs/w02-2-m.jpg',
+            'position' => 1,
+            'sort_order' => 20
+        ]);
+
+        ProductImage::create([
+            'product_id' => 10,
+            'image_url' => 'imgs/w02-3-m.jpg',
+            'position' => 1,
+            'sort_order' => 30
+        ]);
+//----------------------------------------------
+        ProductImage::create([
+            'product_id' => 10,
+            'image_url' => 'imgs/w02-1-m.jpg',
+            'position' => 2,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 10,
+            'image_url' => 'imgs/w02-2-m.jpg',
+            'position' => 2,
+            'sort_order' => 20
+        ]);
+
+        ProductImage::create([
+            'product_id' => 10,
+            'image_url' => 'imgs/w02-3-m.jpg',
+            'position' => 2,
+            'sort_order' => 30
+        ]);
+
+//w03
+        ProductImage::create([
+            'product_id' => 11,
+            'image_url' => 'imgs/w03-1-m.jpg',
+            'position' => 1,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 11,
+            'image_url' => 'imgs/w03-2-m.jpg',
+            'position' => 1,
+            'sort_order' => 20
+        ]);
+//------------------------------------------
+        ProductImage::create([
+            'product_id' => 11,
+            'image_url' => 'imgs/w03-1-m.jpg',
+            'position' => 2,
+            'sort_order' => 10
+        ]);
+
+        ProductImage::create([
+            'product_id' => 11,
+            'image_url' => 'imgs/w03-2-m.jpg',
+            'position' => 2,
+            'sort_order' => 20
+        ]);
     }
 }

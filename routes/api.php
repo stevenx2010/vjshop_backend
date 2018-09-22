@@ -163,3 +163,12 @@ Route::delete('order/delete/id/{orderId}', 'OrderController@destroy');
 Route::post('comment/update', 'CommentController@update');
 Route::get('comment/show/{mobile}', 'CommentController@showByMobile');
 Route::get('comment/not_commented/{orderId}', 'CommentController@showProductsNotCommented');
+
+
+/*
+|--------------------------------------------------------------------------
+| Payment Related Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('payment/alipay', 'PaymentController@alipay');
+Route::get('payment/alipay/callback', 'PaymentController@alipayCallback');

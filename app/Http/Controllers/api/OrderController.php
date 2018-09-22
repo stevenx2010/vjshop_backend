@@ -13,6 +13,9 @@ use App\Customer;
 use App\Libraries\Utilities\DeliveryStatus;
 use App\Libraries\Utilities\OrderStatus;
 use App\Libraries\Utilities\CommentStatus;
+use App\Libraries\Payment\PaymentMethods;
+use App\Libraries\Payment\AlipayOrderInfo;
+use App\Libraries\Payment\AlipayPayRequest;
 
 use Illuminate\Support\Facades\Log;
 
@@ -171,13 +174,20 @@ class OrderController extends Controller
 
         $order_id = json_decode($order, true)['id'];
 
-        // Attach/Update product_ids       
+        // Attach/Update product_ids & Calculate Order Price
+        $order_price = 0;   
+        $order_body = '';   
+        $order_subject = '';
         foreach($request['products'] as $product) {
             Log::debug($product);
             $thisOrder = Order::find($order_id);
 
             $product_id =$product['productId'];
             $thisProduct = Product::find($product_id);
+
+            $thisProductDetails = Product::select('model', 'name', 'product_sub_category_name', 'description')->where('id', $product_id)->get();
+            $thisProductDetails_array = json_decode($thisProductDetails, true);
+            Log::debug($thisProductDetails_array);
 
             if($thisOrder->products->contains($thisProduct)) {
                 $thisOrder->updateExistingPivot($product_id,
@@ -192,6 +202,13 @@ class OrderController extends Controller
                     ]
                 ]);
             }
+
+            $order_price += $product['price'] * $product['quantity'];
+
+            if(strlen($order_body) < 120) {
+                $order_body = $order_body . '+' . $thisProductDetails_array[0]['model'];
+            } 
+            $order_subject = $thisProductDetails_array[0]['product_sub_category_name'];
         }
 
         // set these coupons as used
@@ -212,6 +229,30 @@ class OrderController extends Controller
                 $thisOrder->coupons()->attach($id);
             }
         }
+
+        // Assemble payment packets
+        switch ($request['payment_method']) {
+            case PaymentMethods::WECHAT:
+                # code...
+                break;
+            
+            case PaymentMethods::ALIPAY:
+                $order_info = new AlipayOrderInfo();
+                $order_info->body = $order_body;
+                $order_info->subject = $order_subject;
+                $order_info->out_trade_no = $request['order_serial'];
+                $order_info->total_amount = '0.01'; //$order_price . '';
+
+                Log::debug(json_encode($order_info));
+
+                $payRequest = new AlipayPayRequest(json_encode($order_info));
+
+                Log::debug($payRequest->getRequest());
+                $final_resp = $payRequest->getRequest();
+                break;
+        }
+
+        return json_encode($final_resp);
 
     }
 

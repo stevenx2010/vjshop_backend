@@ -19,10 +19,10 @@ class CouponForNewComersTableSeeder extends Seeder
         	'description' => 'this place can be used for other purpose',
         	'image_url' => 'imgs/newcomer_pic.png'
         ]);
-
+/*
         CouponForNewComer::create([
         	'description' => 'pic01',
         	'image_url' => 'imgs/v03.jpg'
-        ]);
+        ]);*/
     }
 }

@@ -238,16 +238,16 @@ class OrderController extends Controller
             
             case PaymentMethods::ALIPAY:
                 $order_info = new AlipayOrderInfo();
-                $order_info->body = $order_body;
+                $order_info->body = 'mytest';//$order_body;
                 $order_info->subject = $order_subject;
                 $order_info->out_trade_no = $request['order_serial'];
-                $order_info->total_amount = '0.01'; //$order_price . '';
+                $order_info->total_amount = '0.01'; //round($order_price) . '';
 
                 Log::debug(json_encode($order_info));
+                $bz_content = json_encode($order_info);
 
-                $payRequest = new AlipayPayRequest(json_encode($order_info));
+                $payRequest = new AlipayPayRequest($bz_content);
 
-                Log::debug($payRequest->getRequest());
                 $final_resp = $payRequest->getRequest();
                 break;
         }
@@ -284,8 +284,11 @@ class OrderController extends Controller
     {
         Log::debug($id);
         $order = Order::find($id);
-        $order->delete();  
-
-        return Response('deleted', 200);   
+        if($order) {
+            $order->delete();  
+            return Response('deleted', 200);
+        } else {
+            return Response('id not found (delete)', 400);
+        }   
     }
 }

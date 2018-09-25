@@ -66,7 +66,7 @@ class CustomersController extends Controller
         // step 1: Generate a random number, then send SMS to sms_api & get status
         $rand_number = mt_rand(100000, 999999);
         /********************for debug ********** remove it afterwards ***********/
-        $rand_number = 123456;
+        //$rand_number = 123456;
         $smsRequest = new SmsRequest($request['mobile'], $rand_number);
 
         $smsResponse = new SmsResponse();

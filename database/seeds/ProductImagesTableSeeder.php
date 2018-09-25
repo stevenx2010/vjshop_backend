@@ -334,5 +334,26 @@ class ProductImagesTableSeeder extends Seeder
             'position' => 2,
             'sort_order' => 20
         ]);
+
+        ProductImage::create([
+            'product_id' => 12,
+            'image_url' => 'imgs/t-pro-package.jpg',
+            'position' => 1,
+            'sort_order' => 1
+        ]);
+
+        ProductImage::create([
+            'product_id' => 13,
+            'image_url' => 'imgs/t-pro-package.jpg',
+            'position' => 1,
+            'sort_order' => 1
+        ]);
+
+        ProductImage::create([
+            'product_id' => 14,
+            'image_url' => 'imgs/tool01-big.jpg',
+            'position' => 1,
+            'sort_order' => 1
+        ]);
     }
 }

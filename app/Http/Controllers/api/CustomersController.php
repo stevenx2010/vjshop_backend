@@ -66,7 +66,7 @@ class CustomersController extends Controller
         // step 1: Generate a random number, then send SMS to sms_api & get status
         $rand_number = mt_rand(100000, 999999);
         /********************for debug ********** remove it afterwards ***********/
-        //$rand_number = 123456;
+        $rand_number = 123456;
         $smsRequest = new SmsRequest($request['mobile'], $rand_number);
 
         $smsResponse = new SmsResponse();
@@ -128,7 +128,7 @@ class CustomersController extends Controller
             Log::debug(sizeof($user));
 
             // step 3-3: if it's new user then generate access token & save it in db
-            if(count($user) == 0) {
+            if($user && count($user) == 0) {
                 // generate access token
                 $access_token = $this->genToken($request['mobile']);
                 $response['access_token'] = $access_token;
@@ -162,7 +162,9 @@ class CustomersController extends Controller
 
                 // check if user info (name, shipping address) is valid/has created valid shipping address
                 $username = ShippingAddress::select('username')->where('mobile', $request['mobile'])->get();
-                if((json_decode($username[0], true))['username'] == '') {
+                $username_array = json_decode($username);
+                Log::debug($username_array);
+                if(sizeof($username_array) < 1) {
                     $response['address_check'] = SHIPPING_ADDRESS_CHECK_FAILURE;
                     $response['text'] ="invalid shipping address";
                 } else {
@@ -173,6 +175,9 @@ class CustomersController extends Controller
             }
 
             $response['status'] = CONFIRM_SMS_CODE_SUCCESS;
+
+            Log::debug('xxxxxxxxxxxxxxxxx');
+            Log::debug($response);
 
             return response(json_encode($response), 200)->header('Content-type', 'application/json');
           }

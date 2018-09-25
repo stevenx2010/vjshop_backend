@@ -16,7 +16,7 @@ class ProductImagesTableSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
         DB::table('product_images')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1');        
-
+//v350-100
         ProductImage::create([
         	'product_id' => 1,
         	'image_url' => 'imgs/v350-100.jpg',

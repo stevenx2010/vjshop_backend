@@ -172,3 +172,11 @@ Route::get('comment/not_commented/{orderId}', 'CommentController@showProductsNot
 */
 Route::get('payment/alipay', 'PaymentController@alipay');
 Route::get('payment/alipay/callback', 'PaymentController@alipayCallback');
+
+
+/*
+|--------------------------------------------------------------------------
+| Utitlities Related Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('app/version', 'AppVersionController@show');

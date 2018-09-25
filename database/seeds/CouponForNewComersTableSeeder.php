@@ -16,7 +16,7 @@ class CouponForNewComersTableSeeder extends Seeder
         DB::table('coupon_for_new_comers')->truncate();
 
         CouponForNewComer::create([
-        	'description' => 'this place can be used for other purpose',
+        	'description' => '该标题可在后台修改',
         	'image_url' => 'imgs/newcomer_pic.png'
         ]);
 /*

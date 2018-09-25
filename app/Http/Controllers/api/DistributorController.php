@@ -235,16 +235,20 @@ class DistributorController extends Controller
     public function showInfoByLocation($city) {
         $addresses = DistributorAddress::where('city', 'like', '%' . $city . '%')->where('default_address', 1)->get();
         $addresses_array = json_decode($addresses, true);
-        $distributor_id = $addresses_array[0]['distributor_id'];
+        if(sizeof($addresses_array) > 0) {
+            $distributor_id = $addresses_array[0]['distributor_id'];
 
-        $distributor = Distributor::find($distributor_id)->get();
-        $contacts = DistributorContact::where('distributor_id', $distributor_id)->get();
+            $distributor = Distributor::find($distributor_id)->get();
+            $contacts = DistributorContact::where('distributor_id', $distributor_id)->get();
 
-        $resp = (json_decode($distributor, true))[0];
-        $resp['addresses'] = $addresses;
-        $resp['contacts'] = $contacts;
+            $resp = (json_decode($distributor, true))[0];
+            $resp['addresses'] = $addresses;
+            $resp['contacts'] = $contacts;
 
-        return json_encode($resp);
+            return json_encode($resp);
+        } else {
+            return Response('distributor not found!', 404);
+        }
     }
 
     public function showInventoryByProductId($distributorId, $productId)

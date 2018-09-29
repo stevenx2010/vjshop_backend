@@ -70,6 +70,11 @@ class CouponTypesController extends Controller
        // return CouponType::select('id', 'type', 'description', 'sort_order')->get();
     }
 
+    public function showAll()
+    {
+        return CouponType::all();
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

@@ -21,6 +21,7 @@ abstract class PaymentMethod {
 abstract class CouponDiscountMethod {
 	const PERCENTAGE = 1;
 	const VALE = 2;
+	const FREE_SHIPPING = 3;
 }
 
 

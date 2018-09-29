@@ -54,6 +54,7 @@ Route::get('product/query/categoryId/{catId}', 'ProductsController@showByCatId')
 Route::get('product/query/all', 'ProductsController@showAll');
 Route::get('product/query/keyword/{keyword}', 'ProductsController@showByKeyword');
 Route::get('product/query/id/{productId}', 'ProductsController@showByProductId');
+Route::get('product/images/id/{productId}', 'ProductsController@showImagesByProductId');
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +74,14 @@ Route::get('distributor/address/query/{addressId}', 'DistributorController@showA
 Route::delete('distributor/address/delete/{addressId}', 'DistributorController@destroyAddressById');
 Route::get('distributor/contact/query/{contactId}', 'DistributorController@showContactById');
 Route::delete('distributor/contact/delete/{contactId}', 'DistributorController@destroyContactById');
+
+/*
+|--------------------------------------------------------------------------
+| Coupon Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::get('coupon/type/all', 'CouponTypesController@showAll');
+
 
 /*
 |--------------------------------------------------------------------------

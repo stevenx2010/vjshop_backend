@@ -150,6 +150,10 @@ class ProductsController extends Controller
         return Product::where('id', $productId)->get();
     }
 
+    public function showImagesByProductId($productId) {
+        return ProductImage::where('product_id', $productId)->get();
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -210,8 +214,8 @@ class ProductsController extends Controller
         if($sort_order == 999) $sort_order += 10;     
 
         // 2) create thumbnail image url
-        $thumbnail_url = '';
-        if($request->hasFile('thumbnail')) {
+        $thumbnail_url = $request['thumbnail_url'];
+        if($request->hasFile('thumbnail') ) {
             $file = $request->file('thumbnail');
             //$file->store('/images', 'public');
             $hashName = $file->hashName();
@@ -221,7 +225,7 @@ class ProductsController extends Controller
 
             $thumbnail_url = 'imgs/' . $hashName;
             $file->move(base_path('public/imgs'), $hashName);
-        }
+        } 
 
         Log::debug($thumbnail_url);
         
@@ -255,6 +259,11 @@ class ProductsController extends Controller
         // 1) images at the top
         $numOfTopImages = $request['numOfTopImages'];
 
+        // clear top old images
+        if($numOfTopImages > 0) {
+            ProductImage::where('product_id', $productId)->where('position', 1)->delete();
+        }
+
         // get sort order
         $temp = ProductImage::select('sort_order')->orderBy('sort_order', 'desc')->take(1)->get();
         $sort_order = ((json_decode($temp, true))[0])['sort_order'];
@@ -283,6 +292,11 @@ class ProductsController extends Controller
 
         // 2) images at the bottom
         $numOfBottomImages = $request['numOfBottomImages'];
+
+        // clear bottom old images
+        if($numOfBottomImages > 0) {
+            ProductImage::where('product_id', $productId)->where('position', 2)->delete();
+        }
 
         for($i = 0; $i < $numOfBottomImages; $i++) {
             $filename = 'bottomImage' . $i;

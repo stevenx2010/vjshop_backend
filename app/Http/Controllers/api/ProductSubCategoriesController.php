@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\ProductSubCategory;
+use App\ProductCategory;
+
+use Illuminate\Support\Facades\Log;
 
 class ProductSubCategoriesController extends Controller
 {
@@ -58,6 +61,15 @@ class ProductSubCategoriesController extends Controller
 
     public function showBySubCategoryId($subCategoryId) {
         return ProductSubCategory::select('id', 'name', 'description', 'sort_order', 'product_category_id')->where('id', $subCategoryId)->orderBy('sort_order')->get();
+    }
+
+    public function showCatId($subCatId) 
+    {
+        $catId_obj = ProductSubCategory::select('product_category_id')->where('id', $subCatId)->get();
+        $catId_array = json_decode($catId_obj, true);
+        Log::debug($catId_array);
+
+        return ProductCategory::where('id', $catId_array[0]['product_category_id'])->get();
     }
 
     public function swap(Request $request) 

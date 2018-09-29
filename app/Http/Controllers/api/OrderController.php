@@ -16,6 +16,7 @@ use App\Libraries\Utilities\CommentStatus;
 use App\Libraries\Payment\PaymentMethods;
 use App\Libraries\Payment\AlipayOrderInfo;
 use App\Libraries\Payment\AlipayPayRequest;
+use App\Libraries\Payment\WechatUnifiedOrderRequest;
 
 use Illuminate\Support\Facades\Log;
 
@@ -178,6 +179,7 @@ class OrderController extends Controller
         $order_price = 0;   
         $order_body = '';   
         $order_subject = '';
+
         foreach($request['products'] as $product) {
             Log::debug($product);
             $thisOrder = Order::find($order_id);
@@ -206,7 +208,7 @@ class OrderController extends Controller
             $order_price += $product['price'] * $product['quantity'];
 
             if(strlen($order_body) < 120) {
-                $order_body = $order_body . '+' . $thisProductDetails_array[0]['model'];
+                $order_body = $order_body . '-' . $thisProductDetails_array[0]['model'];
             } 
             $order_subject = $thisProductDetails_array[0]['product_sub_category_name'];
         }
@@ -233,12 +235,24 @@ class OrderController extends Controller
         // Assemble payment packets
         switch ($request['payment_method']) {
             case PaymentMethods::WECHAT:
-                # code...
+                // Prepare preorder request
+                $preOrderObj = new WechatUnifiedOrderRequest();
+                $preOrderObj->appid = env('WECHAT_PAY_APP_ID');
+                $preOrderObj->mch_id = env('WECHAT_MCH_ID');
+                $preOrderObj->nonce_str = strtoupper(md5($request['order_serial']));
+                $preOrderObj->body .= $order_body;
+                $preOrderObj->out_trade_no = $request['order_serial'];
+                $preOrderObj->total_fee = round($order_price * 100);
+                $preOrderObj->spbill_create_ip = $request->ip();
+                $preOrderObj->notify_url = env('WECHAT_NOTIFY_URL');
+
+                Log::debug($preOrderObj->getPreOrderRequest());
+                $final_resp = $preOrderObj->getPreOrderRequest();
                 break;
             
             case PaymentMethods::ALIPAY:
                 $order_info = new AlipayOrderInfo();
-                $order_info->body = 'mytest';//$order_body;
+                $order_info->body = $order_body;
                 $order_info->subject = $order_subject;
                 $order_info->out_trade_no = $request['order_serial'];
                 $order_info->total_amount = '0.01'; //round($order_price) . '';

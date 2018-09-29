@@ -107,13 +107,47 @@ class ProductsController extends Controller
         return Product::select('id', 'name', 'product_sub_category_id', 'product_sub_category_name', 'description', 'model', 'price', 'weight', 'package_unit', 'weight_unit', 'sold_amount', 'thumbnail_url', 'sort_order')->where('product_sub_category_id', $productSubCategoryId)->orderBy('sort_order')->get();
     }
 
-    public function showByKeyword($keyword, $subCatId) {
-        Log::debug($keyword);
-        Log::debug($subCatId);
-        if($keyword == '*') 
+    public function showByKeywordSubCatId($keyword, $subCatId) 
+    {
+
+        if($keyword == '*' || $keyword == '') {
             return Product::where('product_sub_category_id', $subCatId)->get();
-        else
+        }
+        else {
             return Product::where('name', 'like', '%' . $keyword . '%')->where('product_sub_category_id', $subCatId)->get();
+        }
+    }
+
+    public function showByKeywordCatId($keyword, $catId)
+    {
+        if($keyword == '*' || $keyword == '') {
+            return ProductCategory::find($catId)->products()->get();
+        } else {
+            return ProductCategory::find($catId)->products()->where('products.name', 'like', '%' . $keyword . '%')->get();
+        }
+    }
+
+    public function showByCatId($catId)
+    {
+
+        $cat = ProductCategory::find($catId);
+        return json_encode($cat->products()->get());
+    }
+
+    public function showAll() {
+        return Product::all();
+    }
+
+    public function showByKeyword($keyword) {
+        if($keyword == '*' || $keyword == '') {
+            return Product::all();
+        } else {
+            return Product::where('name', 'like', '%' . $keyword . '%')->get();
+        }
+    }
+
+    public function showByProductId($productId) {
+        return Product::where('id', $productId)->get();
     }
 
     /**
@@ -193,7 +227,7 @@ class ProductsController extends Controller
         
         // 3) fill the product basic info & create/update it
         $product = Product::updateOrCreate(
-            ['name' => $request['name'], 'model' =>  $request['model'], 'product_sub_category_id' => $request['product_sub_category_id'],  'product_sub_category_name' => $request['product_sub_category_name']],
+            ['id' => $request['id'], 'product_sub_category_id' => $request['product_sub_category_id'],  'product_sub_category_name' => $request['product_sub_category_name']],
             [
              'product_sub_category_id' => $request['product_sub_category_id'],
              'product_sub_category_name' => $request['product_sub_category_name'],

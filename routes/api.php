@@ -35,18 +35,25 @@ Route::get('product/categories/{productId}', 'ProductCategoriesController@show')
 Route::post('product/categories/update', 'ProductCategoriesController@update');
 Route::delete('product/categories/delete/{categoryId}', 'ProductCategoriesController@destroy');
 
+
 Route::get('product/subcategories/categoryid/{categoryId}', 'productSubCategoriesController@showByCategoryId');
 Route::post('product/subcategories/swap', 'ProductSubCategoriesController@swap');
 Route::post('product/subcategories/update', 'ProductSubCategoriesController@update');
 Route::get('product/subcategories/subcategoryid/{subcategoryId}', 'productSubCategoriesController@showBySubCategoryId');
 Route::delete('product/subcategories/delete/{subCategoryId}', 'ProductSubCategoriesController@destroy');
+Route::get('product/categories/subCatId/{subCatId}', 'ProductSubCategoriesController@showCatId');
 
 Route::post('product/product/update', 'ProductsController@update');
 Route::post('product/product/updateImage', 'ProductsController@updateImage');
 Route::get('product/products/bySubCatId/{productSubCategoryId}', 'ProductsController@showProductsBySubCategoryId');
 Route::delete('product/products/delete/{productId}', 'ProductsController@destroy');
 Route::post('product/products/swap', 'ProductsController@swap');
-Route::get('product/query/keyword/{keyword}/{subCatId}', 'ProductsController@showByKeyword');
+Route::get('product/query/keyword/{keyword}/{subCatId}', 'ProductsController@showByKeywordSubCatId');
+Route::get('product/query/keyword/{keyword}/catid/{catId}', 'ProductsController@showByKeywordCatId');
+Route::get('product/query/categoryId/{catId}', 'ProductsController@showByCatId');
+Route::get('product/query/all', 'ProductsController@showAll');
+Route::get('product/query/keyword/{keyword}', 'ProductsController@showByKeyword');
+Route::get('product/query/id/{productId}', 'ProductsController@showByProductId');
 
 /*
 |--------------------------------------------------------------------------
@@ -59,7 +66,13 @@ Route::post('distributor/contact/update', 'DistributorController@updateContact')
 Route::get('distributor/info/query/{keyword}', 'DistributorController@showInfo');
 Route::get('distributor/inventory/query/{distributorId}', 'DistributorController@showInventory');
 Route::post('distributor/inventory/increase', 'DistributorController@putInventory');
-
+Route::get('distributor/distributors', 'DistributorController@showAll');
+Route::delete('distributor/delete/{id}', 'DistributorController@destroy');
+Route::get('distributor/query/{id}', 'DistributorController@showById');
+Route::get('distributor/address/query/{addressId}', 'DistributorController@showAddressById');
+Route::delete('distributor/address/delete/{addressId}', 'DistributorController@destroyAddressById');
+Route::get('distributor/contact/query/{contactId}', 'DistributorController@showContactById');
+Route::delete('distributor/contact/delete/{contactId}', 'DistributorController@destroyContactById');
 
 /*
 |--------------------------------------------------------------------------
@@ -172,7 +185,6 @@ Route::get('comment/not_commented/{orderId}', 'CommentController@showProductsNot
 */
 Route::get('payment/alipay', 'PaymentController@alipay');
 Route::get('payment/alipay/callback', 'PaymentController@alipayCallback');
-
 
 /*
 |--------------------------------------------------------------------------

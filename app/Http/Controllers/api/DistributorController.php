@@ -271,6 +271,64 @@ class DistributorController extends Controller
         return $inventory;
     }
 
+    public function showAll() 
+    {
+        $distributors = Distributor::select('id', 'name', 'description')->get();
+        Log::debug($distributors);
+        $distributors_array = json_decode($distributors, true);
+
+        $final_resp = [];
+        foreach ($distributors_array as $distributor) {
+            $resp = [];
+            $resp['id'] = $distributor['id'];
+            $resp['name'] = $distributor['name'];
+            $resp['description'] = $distributor['description'];
+            $id = $distributor['id'];
+            Log::debug($id);
+            $addresses = DistributorAddress::select('id', 'distributor_id', 'city', 'street', 'default_address')->where('distributor_id', $id)->get();
+            $resp['addresses'] = $addresses;
+            $contacts = DistributorContact::select('id', 'distributor_id', 'name', 'mobile', 'phone_area_code','telephone', 'default_contact')->where('distributor_id', $id)->get();
+            $resp['contacts'] = $contacts;
+
+            array_push($final_resp, $resp);
+        }
+        return $final_resp;
+    }
+
+    public function showById($id) 
+    {
+        $distributor = Distributor::select('id', 'name', 'description')->where('id', $id)->get();
+        if(count($distributor) < 1) {
+            return Response('record not found!', 404);
+        }
+        Log::debug($distributor);
+        $resp = [];
+        $resp['id'] = $distributor[0]->id;
+        $resp['name'] = $distributor[0]->name;
+        $resp['description'] = $distributor[0]->description;
+
+        $addresses = DistributorAddress::select('id', 'distributor_id', 'city', 'street', 'default_address')->where('distributor_id', $id)->get();
+        $resp['addresses'] = $addresses;
+        $contacts = DistributorContact::select('id', 'distributor_id', 'name', 'mobile', 'phone_area_code','telephone', 'default_contact')->where('distributor_id', $id)->get();
+        $resp['contacts'] = $contacts;
+
+        return json_encode($resp);
+    }
+
+    public function showAddressById($addressId)
+    {
+        $address = DistributorAddress::select('id', 'city', 'street', 'distributor_id', 'default_address')->where('id', $addressId)->get();
+
+        return $address;
+    }
+
+    public function showContactById($contactId)
+    {
+        $contact = DistributorContact::select('id', 'name', 'mobile', 'phone_area_code', 'telephone', 'default_contact')->where('id', $contactId)->get();
+
+        return $contact;
+    }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -299,7 +357,7 @@ class DistributorController extends Controller
     {
 
         $distributor = Distributor::updateOrCreate(
-                ['name'=> $request['name']],
+                ['id'=> $request['id']],
                 ['name' => $request['name'],
                  'description' => $request['description']
                 ]
@@ -315,7 +373,7 @@ class DistributorController extends Controller
         }
 
         DistributorAddress::updateOrCreate(
-            ['city' => $request['city'], 'street' => $request['street'], 'distributor_id' => $request['distributor_id']],
+            ['id' => $request['id'], 'distributor_id' => $request['distributor_id']],
             ['city' => $request['city'],
              'street' => $request['street'],
              'default_address' => $request['default_address'],
@@ -333,7 +391,7 @@ class DistributorController extends Controller
         }
 
         DistributorContact::updateOrCreate(
-            ['name' => $request['name'], 'distributor_id' => $request['distributor_id']],
+            ['id' => $request['id'], 'distributor_id' => $request['distributor_id']],
             [
                 'name' => $request['name'],
                 'mobile' => $request['mobile'],
@@ -352,7 +410,19 @@ class DistributorController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return Distributor::destroy($id);
+
+        //return Response('deleted', 200);
+    }
+
+    public function destroyAddressById($addressId)
+    {
+        return DistributorAddress::destroy($addressId);
+    }
+
+    public function destroyContactById($contactId)
+    {
+        return DistributorContact::destroy($contactId);
     }
 
     public function login(Request $request, $mobile) {

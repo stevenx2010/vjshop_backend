@@ -11,6 +11,7 @@ use App\DistributorContact;
 use App\Order;
 use App\ShippingAddress;
 use App\Product;
+use App\ProductSubCategory;
 
 use App\Libraries\Utilities\OrderStatus;
 
@@ -329,6 +330,115 @@ class DistributorController extends Controller
         return $contact;
     }
 
+    public function showInventoryByConditions(Request $request)
+    {
+        Log::debug($request);
+        $distributorId = $request['distributorId'];
+        $categoryId = $request['categoryId'];           // a
+        $subCategoryId = $request['subCategoryId'];     // b
+        $keyword = $request['keyword'];                 // c
+
+        if($categoryId == 0 || $categoryId == 1){   // a == 0; 1 for all product category for the APP category page
+            if($keyword == null || ($keyword && strlen($keyword) ==0)){     // c ==  null
+                return Distributor::find($distributorId)->products()->get();
+            } else {    // c != null
+                return Distributor::find($distributorId)->products()->where('products.name', 'like', '%' . $keyword . '%')->get();
+            }
+        } else {    // a!= 0
+            if($subCategoryId == 0) {   // b == 0
+                if($keyword == null || ($keyword && strlen($keyword) ==0)){     // c == null
+                    $subCategories = ProductSubCategory::where('product_category_id', $categoryId)->get();
+                    $subCategories_array = json_decode($subCategories, true);
+
+                    $resp = [];
+                    foreach ($subCategories as $subCat) {
+                        $products = Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCat['id'])->get();
+                        Log::debug($products);
+                        foreach($products as $p) {
+                            array_push($resp, $p);
+                        }
+                    }
+
+                    return $resp;
+                } else {    // c != null
+                     $subCategories = ProductSubCategory::where('product_category_id', $categoryId)->get();
+                    $subCategories_array = json_decode($subCategories, true);
+
+                    $resp = [];
+                    foreach ($subCategories_array as $subCat) {
+                        $products = Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCat['id'])->where('products.name', 'like', '%' . $keyword . '%')->get();
+
+                        foreach($products as $p) {
+                            array_push($resp, $p);
+                        }
+                    }
+
+                    return $resp;                   
+                }
+            } else {    // b != 0
+                if($keyword == null || ($keyword && strlen($keyword) ==0)) {    // c == null
+                    return Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCategoryId)->get();
+                } else {
+                    return Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCategoryId)->where('products.name', 'like', '%' . $keyword . '%')->get();                    
+                }
+            }
+        }
+
+    }
+
+    public function showProductByConditions(Request $request)
+    {
+        Log::debug($request);
+        $categoryId = $request['categoryId'];           // a
+        $subCategoryId = $request['subCategoryId'];     // b
+        $keyword = $request['keyword'];                 // c
+
+        if($categoryId == 0 || $categoryId == 1){   // a == 0; 1 for all product category for the APP category page
+            if($keyword == null || ($keyword && strlen($keyword) ==0)){     // c ==  null
+                return Product::all();
+            } else {    // c != null
+                return Product::where('products.name', 'like', '%' . $keyword . '%')->get();
+            }
+        } else {    // a!= 0
+            if($subCategoryId == 0) {   // b == 0
+                if($keyword == null || ($keyword && strlen($keyword) ==0)){     // c == null
+                    $subCategories = ProductSubCategory::where('product_category_id', $categoryId)->get();
+                    $subCategories_array = json_decode($subCategories, true);
+
+                    $resp = [];
+                    foreach ($subCategories_array as $subCat) {
+                        $products = Product::where('products.product_sub_category_id', $subCat['id'])->get();
+
+                        foreach($products as $p) {
+                            array_push($resp, $p);
+                        }
+                    }
+
+                    return $resp;
+                } else {    // c != null
+                     $subCategories = ProductSubCategory::where('product_category_id', $categoryId)->get();
+                    $subCategories_array = json_decode($subCategories, true);
+
+                    $resp = [];
+                    foreach ($subCategories as $subCat) {
+                        $products = Product::where('products.product_sub_category_id', $subCat['id'])->where('products.name', 'like', '%' . $keyword . '%')->get();
+
+                        foreach($products as $p) {
+                            array_push($resp, $p);
+                        }
+                    }
+
+                    return $resp;                   
+                }
+            } else {    // b != 0
+                if($keyword == null || ($keyword && strlen($keyword) ==0)) {    // c == null
+                    return Product::where('products.product_sub_category_id', $subCategoryId)->get();
+                } else {
+                    return Product::where('products.product_sub_category_id', $subCategoryId)->where('products.name', 'like', '%' . $keyword . '%')->get();                    
+                }
+            }
+        }
+    }
 
     /**
      * Show the form for editing the specified resource.

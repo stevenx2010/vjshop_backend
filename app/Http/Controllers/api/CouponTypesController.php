@@ -75,6 +75,11 @@ class CouponTypesController extends Controller
         return CouponType::all();
     }
 
+    public function showCouponTypeById($couponTypeId)
+    {
+        return CouponType::find($couponTypeId);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -98,6 +103,34 @@ class CouponTypesController extends Controller
         //
     }
 
+    public function updateSortOrder(Request $request)
+    {
+        $cp1 = CouponType::find($request[0]);
+        $cp2 = CouponType::find($request[1]);
+
+        $temp_sort_order = $cp1->sort_order;
+        
+        $cp1->sort_order = $cp2->sort_order;
+        $cp2->sort_order = $temp_sort_order;
+
+        $cp1->save();
+        $cp2->save();
+    }
+
+    public function updateOrCreateCouponType(Request $request)
+    {
+        $couponType = CouponType::updateOrCreate(
+            ['id' => $request['id']],
+            [
+                'type' => $request['type'],
+                'description' => $request['description'],
+                'sort_order' => $request['sort_order']
+            ]
+        );
+
+        return $couponType;
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -107,5 +140,10 @@ class CouponTypesController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function deleteCouponTypeById($couponTypeId)
+    {
+        return CouponType::destroy($couponTypeId);
     }
 }

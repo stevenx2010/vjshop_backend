@@ -74,6 +74,8 @@ Route::get('distributor/address/query/{addressId}', 'DistributorController@showA
 Route::delete('distributor/address/delete/{addressId}', 'DistributorController@destroyAddressById');
 Route::get('distributor/contact/query/{contactId}', 'DistributorController@showContactById');
 Route::delete('distributor/contact/delete/{contactId}', 'DistributorController@destroyContactById');
+Route::post('distributor/inventory/query', 'DistributorController@showInventoryByConditions');
+Route::post('distributor/product/query', 'DistributorController@showProductByConditions');
 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +83,23 @@ Route::delete('distributor/contact/delete/{contactId}', 'DistributorController@d
 |--------------------------------------------------------------------------
 */
 Route::get('coupon/type/all', 'CouponTypesController@showAll');
+Route::post('coupon/type/update/sort_order', 'CouponTypesController@updateSortOrder');
+Route::post('coupon/type/update/coupontype', 'CouponTypesController@updateOrCreateCouponType');
+Route::get('coupon/type/query/id/{couponTypeId}', 'CouponTypesController@showCouponTypeById');
+Route::delete('coupon/type/delete/id/{couponTypeId}', 'CouponTypesController@deleteCouponTypeById');
+
+Route::post('coupon/query', 'CouponsController@showCoupons');
+Route::post('coupon/update', 'CouponsController@updateOrCreateCoupon');
+Route::get('coupon/query/id/{couponId}', 'CouponsController@showCouponById');
+
+/*
+|--------------------------------------------------------------------------
+| Order Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::post('order/query/conditions', 'OrderController@showByConditions');
+
+
 
 
 /*
@@ -175,6 +194,7 @@ Route::post('order/submit', 'OrderController@update');
 Route::get('order/update/delivery/{orderId}/{status}/{datetime}', 'OrderController@updateDeliveryStatus');
 Route::get('order/myorders/{mobile}/{orderStatus}', 'OrderController@showOrdersByStatus');
 Route::delete('order/delete/id/{orderId}', 'OrderController@destroy');
+Route::delete('order/delete/orderSerial/{orderSerial}', 'OrderController@destroyByOrderSerial');
 
 
 /*

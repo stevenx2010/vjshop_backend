@@ -24,8 +24,8 @@ class CreateCouponsTable extends Migration
             $table->tinyInteger('discount_method');     // 1: discount_percentage; 2: discount_value
             $table->double('discount_percentage')->default(100);
             $table->double('discount_value')->default(0);
-            $table->integer('quantity_initial')->unsigned();
-            $table->integer('quantity_available')->unsigned();
+            $table->integer('quantity_initial')->default(-1);
+            $table->integer('quantity_available')->default(-1);
             $table->string('image_url');
             $table->boolean('for_new_comer')->default(false);
             $table->timestamps();

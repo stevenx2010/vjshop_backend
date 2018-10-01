@@ -220,7 +220,7 @@ class ProductsTableSeeder extends Seeder
         	'name' => 'T-Smart“小精灵”系列TPMS系统',
         	'description' => '本胎压监测系统同时显示四轮胎的胎压胎温，实时无限传输监测数据，外观小巧时尚，无惧强光直射，任意摆放。特别设计按键隐藏功能，防止误操作。',
         	'product_sub_category_id' => 4,
-            'product_sub_category_name' => '平衡块工具',
+            'product_sub_category_name' => 'TPMS胎压监测',
         	'model' => 'T-Smart系列',
         	'package_unit' => '套',
         	'weight' => 0.4,

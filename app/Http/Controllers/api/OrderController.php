@@ -127,6 +127,10 @@ class OrderController extends Controller
         return $final_resp;
     }
 
+    public function showByConditions(Request $request)
+    {
+        Log::debug($request);
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -304,5 +308,10 @@ class OrderController extends Controller
         } else {
             return Response('id not found (delete)', 400);
         }   
+    }
+
+    public function destroyByOrderSerial($orderSerial)
+    {
+        return Order::where('order_serial', $orderSerial)->delete();
     }
 }

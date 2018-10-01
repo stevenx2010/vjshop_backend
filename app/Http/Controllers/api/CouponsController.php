@@ -72,6 +72,29 @@ class CouponsController extends Controller
 
         return \DB::select('select id, name, description, coupon_type_id, expire_date, expired, discount_method, discount_percentage, discount_value, quantity_initial, quantity_available, image_url from coupons c left join (select * from coupon_customer where customer_id = ?) d on c.id=d.coupon_id where d.coupon_id is null', [$id[0]->id]);
     }
+
+    public function showCoupons(Request $request) {
+        Log::debug($request);
+        $coupon_type_id = $request['coupon_type_id'];
+        $keyword = $request['keyword'];
+
+        if($coupon_type_id == 0) {
+            if($keyword == null || $keyword == '*')
+                return Coupon::all();
+            else
+                return Coupon::where('name', 'like', '%' . $keyword . '%')->get();
+        } else {
+             if($keyword == null || $keyword == '*')
+                return Coupon::where('coupon_type_id', $coupon_type_id)->get();
+            else
+                return Coupon::where('name', 'like', '%' . $keyword . '%')->where('coupon_type_id', $coupon_type_id)->get();
+        }
+    
+    }
+
+    public function showCouponById($couponId) {
+        return Coupon::where('id', $couponId)->get();
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -116,6 +139,50 @@ class CouponsController extends Controller
             $user->coupons()->attach([$coupon_id => ['quantity' => 1]]);
         }
 
+    }
+
+    public function updateOrCreateCoupon(Request $request)
+    {
+        Log::debug($request);
+
+        $date1 = new \DateTime($request['expire_date']);
+        $date2 = new \DateTime("now");
+
+        Log::debug($date1->diff($date2)->format('%a'));
+        $expired = $date1->diff($date2)->format('%a') > 0 ? false : true;
+
+        // 1. process image file
+        $image_url = $request['image_url'];
+        if($request->hasFile('image_file')) {
+            $file =$request->file('image_file');
+            $hashName = $file->hashName();
+            if($file->getMimeType() == 'image/jpeg')
+                 $hashName = substr_replace($hashName, 'jp', -4, -1);
+
+            $image_url = 'imgs/' . $hashName;
+            $file->move(base_path('public/imgs'), $hashName);
+        }
+
+        // 2. fill the db
+        $coupon = Coupon::updateOrCreate(
+            ['id' => $request['id']],
+            [
+                'name' => $request['name'],
+                'description' => $request['description'],
+                'coupon_type_id' => $request['coupon_type_id'],
+                'expire_date' => $request['expire_date'],
+                'expired' => $expired,
+                'discount_method' => $request['discount_method'],
+                'discount_percentage' => $request['discount_percentage'],
+                'discount_value' => $request['discount_value'],
+                'quantity_initial' => $request['quantity_initial'],
+                'quantity_available' => $request['quantity_initial'],
+                'for_new_comer' => $request['for_new_comer'],
+                'image_url' => $image_url
+            ]
+        );
+
+        return $coupon;
     }
     /**
      * Remove the specified resource from storage.

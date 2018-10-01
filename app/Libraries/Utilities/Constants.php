@@ -24,4 +24,10 @@ abstract class CouponDiscountMethod {
 	const FREE_SHIPPING = 3;
 }
 
+abstract class OrderRefund {
+	const NA = -1;
+	const WAITING_FOR_REFUND = 0;
+	const REFUNDED = 1;
+}
+
 

@@ -9,10 +9,17 @@ use App\Order;
 use App\Product;
 use App\Coupon;
 use App\Customer;
+use App\ShippingAddress;
+use App\Distributor;
+use App\DistributorContact;
+use App\DistributorAddress;
 
 use App\Libraries\Utilities\DeliveryStatus;
 use App\Libraries\Utilities\OrderStatus;
 use App\Libraries\Utilities\CommentStatus;
+use App\Libraries\Utilities\InvoiceStatus;
+use App\Libraries\Utilities\RefundStatus;
+
 use App\Libraries\Payment\PaymentMethods;
 use App\Libraries\Payment\AlipayOrderInfo;
 use App\Libraries\Payment\AlipayPayRequest;
@@ -130,6 +137,129 @@ class OrderController extends Controller
     public function showByConditions(Request $request)
     {
         Log::debug($request);
+        $orders = Order::all();
+
+        Log::debug($orders);
+
+        if($request['order_serial'] != null) {
+            $orders = $orders->where('order_serial', $request['order_serial']);
+        }
+ 
+        if($request['keyword'] != null) {
+            $keyword = $request['keyword'];
+            $orders = Order::where('order_serial', 'like', '%'. $keyword . '%')->get();
+
+            if(count($orders) < 1) return [];
+        }
+
+        if($request['mobile'] != null) {
+            $id = Customer::select('id')->where('mobile', $request['mobile'])->get();
+            $id_array = json_decode($id, true);
+            if($id_array)
+                $orders = Customer::find(($id_array[0])['id'])->orders()->get();
+            else
+                return [];
+        }
+        if($request['order_status'] > 0) {
+            $orders = $orders->where('order_status', $request['order_status']);
+        }
+        if($request['delivery_status'] > 0) {
+            $orders = $orders->where('delivery_status', $request['delivery_status']);
+        }
+        if($request['invoice_status'] > 0) {
+            $orders = $orders->where('invoice_status', $request['invoice_status']);
+        }
+        if($request['comment_status'] > 0) {
+            $orders = $orders->where('comment_status', $request['comment_status']);
+        }
+
+        if($request['query_by_date']) {
+            $orders = $orders->where('order_date', '>', $request['date1'])->where('order_date', '<', $request['date2']);
+        }
+
+        if($request['invoice_required']) {
+            $orders = $orders->where('is_invoice_required', true)->where('invoice_status', InvoiceStatus::NOT_ISSUED)->where('delivery_status', DeliveryStatus::CONFIRMED);
+        }
+
+        if($request['invoice_issued']) {
+            $orders = $orders->where('invoice_status', InvoiceStatus::ISSUED);
+        }
+
+        if($request['refund_orders']) {
+            $orders = $orders->where('refund_status', RefundStatus::REFUNDED);
+        }
+
+        if($request['refund_process']) {
+            $orders = $orders->where('refund_status', '!=', RefundStatus::REFUNDED)->where('order_status', '!=', OrderStatus::NOT_PAY_YET);
+        }
+
+        $final_resp = [];
+        foreach ($orders as $order) {
+            array_push($final_resp, $order);
+        }
+        return $final_resp;
+    }
+
+    public function showByConditionsForDistributor(Request $request)
+    {
+        Log::debug($request);
+        $distributor_id = $request['distributor_id'];
+        $distributor = Distributor::find($distributor_id);
+
+        if($request['keyword'] != null) {
+            $keyword = $request['keyword'];
+            $orders = Order::where('order_serial', 'like', '%'. $keyword . '%')->where('distributor_id', $request['distributor_id'])->where('order_status', '!=', OrderStatus::NOT_PAY_YET)->get();
+            if(count($orders) < 1) return [];
+        }
+
+        $orders = $distributor->orders()->where('order_status', '!=', OrderStatus::NOT_PAY_YET)->get();
+
+        if($request['order_serial'] != null) {
+            $orders = $orders->where('order_serial', $request['order_serial']);
+        }
+
+        if($request['delivery_status'] != 0) {
+            $orders = $orders->where('delivery_status', $request['delivery_status']);
+        }
+
+        if($request['query_by_date']) {
+            $orders = $orders->where('order_date', '>', $request['date1'])->where('order_date', '<', $request['date2']);
+        }
+
+
+
+        $final_resp = [];
+        foreach ($orders as $order) {
+            array_push($final_resp, $order);
+        }
+        return $final_resp;
+
+    }
+    public function showDetailByOrderId($orderId)
+    {
+        $order = Order::find($orderId);
+        $shipping_address = ShippingAddress::where('customer_id', $order->customer_id)->get();
+        $customer = Customer::where('id', $order->customer_id)->get();
+        $products = $order->products()->get();
+        $distributor = Distributor::where('id', $order->distributor_id)->get();
+        $distributor_address = DistributorAddress::where('distributor_id', $order->distributor_id)->where('default_address', 1)->get();
+        $distibutor_contact = DistributorContact::where('distributor_id', $order->distributor_id)->where('default_contact', 1)->get();
+
+        $resp = [];
+
+        if($order->invoice_status == InvoiceStatus::ISSUED) {
+            $invoice = $order->invoice()->get();
+            $resp['invoice'] = $invoice;
+        }
+        
+        $resp['shipping_address'] = $shipping_address;
+        $resp['customer'] = $customer;
+        $resp['products'] = $products;
+        $resp['distributor'] = $distributor;
+        $resp['distributor_contact'] = $distibutor_contact;
+        $resp['distributor_address'] = $distributor_address;
+
+        return $resp;
     }
     /**
      * Show the form for editing the specified resource.

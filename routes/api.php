@@ -98,6 +98,33 @@ Route::get('coupon/query/id/{couponId}', 'CouponsController@showCouponById');
 |--------------------------------------------------------------------------
 */
 Route::post('order/query/conditions', 'OrderController@showByConditions');
+Route::get('order/query/detail/id/{id}', 'OrderController@showDetailByOrderId');
+Route::post('order/query/conditions/distributor', 'OrderController@showByConditionsForDistributor');
+
+
+/*
+|--------------------------------------------------------------------------
+| Invoice Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::post('invoice/updateOrCreate', 'InvoiceController@updateOrCreate');
+
+/*
+|--------------------------------------------------------------------------
+| Refund Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::post('refund/update', 'RefundController@updateOrCreate');
+Route::get('refund/get/{orderId}', 'RefundController@showByOrderId');
+
+/*
+|--------------------------------------------------------------------------
+| Home Page / Newcomer Page Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::post('page/homepage/update', 'PageController@update');
+
+Route::post('page/newcomerpage/update', 'PageController@updateNewComer');
 
 
 
@@ -171,6 +198,7 @@ Route::get('distributor/inventories/{mobile}', 'DistributorController@showInvent
 Route::get('distributor/info/mobile/{mobile}', 'DistributorController@showInfoByMobile');
 Route::get('distributor/info/city/{city}', 'DistributorController@showInfoByLocation');
 Route::get('distributor/inventory/productId/{distributorId}/{productId}', 'DistributorController@showInventoryByProductId');
+Route::get('distributor/login/check/{mobile}', 'DistributorController@checkLogin');
 
 /*
 |--------------------------------------------------------------------------

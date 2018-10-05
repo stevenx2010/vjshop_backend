@@ -25,7 +25,7 @@ class CreateOrdersTable extends Migration
             $table->datetime('order_date');
             $table->datetime('delivery_date')->nullable();
             $table->datetime('delivery_confirm_date')->nullable();
-            $table->tinyInteger('delivery_status');
+            $table->tinyInteger('delivery_status')->default(0); // 0: order is not available because of not paid by user;
             $table->tinyInteger('payment_method');  //1: Alipay; 2. Wechat
             $table->tinyInteger('shipping_method')->nullable();
             $table->decimal('shipping_charges')->default(0.00);
@@ -37,7 +37,7 @@ class CreateOrdersTable extends Migration
             $table->tinyInteger('invoice_type');    //1: persona;   2: enterprise
             $table->string('invoice_head', 255)->nullable();
             $table->string('invoice_tax_number')->nullable();
-            $table->tinyInteger('refunded')->default(-1); //-1: NA; 0: wait for refunding; 1: refunded
+            $table->tinyInteger('refund_status')->default(-1); //-1: NA; 1: appliction for refunding; 2: wait for refunding; 3: refunded
             $table->timestamps();
         });
     }

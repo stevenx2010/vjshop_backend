@@ -10,6 +10,7 @@ use App\Order;
 use App\Product;
 use App\Customer;
 use App\Libraries\Utilities\OrderStatus;
+use App\Libraries\Utilities\CommentStatus;
 
 use Illuminate\Support\Facades\Log;
 
@@ -103,6 +104,7 @@ class CommentController extends Controller
         $order = Order::find($orderId);
 
         return $order->products()->wherePivot('commented', 0)->get();
+
     }
 
     /**
@@ -137,9 +139,13 @@ class CommentController extends Controller
             $comment_prev_id = 0;
         }
 
+        Log::debug('comment id:');
+        Log::debug($request['comment_id']);
         $comment = Comment::updateOrCreate(
-            [ 'order_id' => $request['order_id'], 'product_id' => $request['product_id'],
-              'comment' => $request['comment'], 'rating' => $request['rating']
+            [ 'order_id' => $request['order_id'],
+              'product_id' => $request['product_id'],
+              'comment' => $request['comment'],
+              'rating' => $request['rating']
             ],
             [
               'order_id' => $request['order_id'],
@@ -158,12 +164,11 @@ class CommentController extends Controller
             $prev->save();
         }
 
-        // set comment status to true
+        // set comment status to true if each product commented in this order
         $order = Order::find($request['order_id']);
-        $order->order_status = OrderStatus::COMMENTED;
-        $order->save();
+
         foreach($order->products as $product) {
-            Log::debug($product);
+
             if($product['id'] == $request['product_id']) {
                 $product_id = $request['product_id'];
                 $quantity = $product->pivot->quantity;
@@ -175,6 +180,25 @@ class CommentController extends Controller
 
                 break;
             }
+        }
+
+        // count the products which have been commented
+        $order = Order::find($request['order_id']);
+        $number = 0;
+        foreach($order->products as $product) {
+            if($product->pivot->commented) $number++;
+        }
+
+        $products = $order->products()->get();
+
+        Log::debug('xxxxxxxxxxxxxxxxxx');
+        Log::debug(count($products));
+        Log::debug($number);
+
+        if($number == count($products)) { // all products have been commented
+            $order->order_status = OrderStatus::COMMENTED;
+            $order->comment_status = CommentStatus::COMMENTED;
+            $order->save(); 
         }
 
         return json_encode($comment);

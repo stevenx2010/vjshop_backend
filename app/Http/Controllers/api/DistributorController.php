@@ -535,13 +535,49 @@ class DistributorController extends Controller
         return DistributorContact::destroy($contactId);
     }
 
-    public function login(Request $request, $mobile) {
+    public function login($mobile) 
+    {
         
-        //check if it's valid distributor
-        $distributors = DistributorContact::where('mobile', $mobile)->get();
-        if(count($distributors) > 0)
+        $distributor_id = DistributorContact::select('distributor_id')->where('mobile', 'like', $mobile)->get();
+
+        $id = json_decode($distributor_id);
+        Log::debug($id);
+
+        if(count($id) > 0) {
+            $distributor = Distributor::find($id[0]->distributor_id);
+            $now = new \DateTime("now");
+            $distributor->last_login = $now->format('Y-m-d H:i:s');
+            $distributor->save();
             return response('ok', 200);
+        }
         else 
             return response('not found', 404);
+    }
+
+    public function checkLogin($mobile)
+    {
+        $distributor_id = DistributorContact::select('distributor_id')->where('mobile', 'like', $mobile)->get();
+
+        $id = json_decode($distributor_id);
+
+        Log::debug($id);
+
+        if(count($id) > 0) {
+            $distributor = Distributor::find($id[0]->distributor_id);
+            $last_login = $distributor->last_login;
+            $last_login_date = new \DateTime($last_login);
+            $now = new \DateTime("now");
+            $interval = $last_login_date->diff($now);
+
+            if($interval->days < 30) {
+
+                return json_encode(['valid'=> true]);
+            }
+            else{ 
+                return json_encode(['valid' =>  false]);
+            }
+        }
+
+        return json_encode(['valid' => false]);
     }
 }

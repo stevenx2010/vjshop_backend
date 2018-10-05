@@ -38,4 +38,16 @@ class Order extends Model
     public function coupons() {
     	return $this->belongsToMany('App\Coupon')->withTimestamps();
     }
+
+    public function customer() {
+    	return $this->belongsTo('App\Customer');
+    }
+
+    public function invoice() {
+    	return $this->hasOne('App\Invoice');
+    }
+
+    public function refund() {
+    	return $this->hasOne('App\Refund');
+    }
 }

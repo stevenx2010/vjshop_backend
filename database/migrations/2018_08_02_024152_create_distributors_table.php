@@ -17,6 +17,7 @@ class CreateDistributorsTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('description');
+            $table->datetime('last_login')->nullable();
             $table->timestamps();
         });
     }

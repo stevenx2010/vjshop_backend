@@ -27,16 +27,16 @@ Route::get('HomePageImages/images/{position}', 'HomePageImagesController@show');
 |--------------------------------------------------------------------------
 */
 
-Route::get('product/categories', 'ProductCategoriesController@index');
-Route::get('product/categories/console', 'ProductCategoriesController@index_console');
-Route::post('product/categories', 'ProductCategoriesController@store');
-Route::post('product/categories/swap', 'ProductCategoriesController@swap');
-Route::get('product/categories/{productId}', 'ProductCategoriesController@show');
-Route::post('product/categories/update', 'ProductCategoriesController@update');
-Route::delete('product/categories/delete/{categoryId}', 'ProductCategoriesController@destroy');
+Route::middleware('auth:api')->get('product/categories', 'ProductCategoriesController@index');
+Route::middleware('auth:api')->get('product/categories/console', 'ProductCategoriesController@index_console');
+Route::middleware('auth:api')->post('product/categories', 'ProductCategoriesController@store');
+Route::middleware('auth:api')->post('product/categories/swap', 'ProductCategoriesController@swap');
+Route::middleware('auth:api')->get('product/categories/{productId}', 'ProductCategoriesController@show');
+Route::middleware('auth:api')->post('product/categories/update', 'ProductCategoriesController@update');
+Route::middleware('auth:api')->delete('product/categories/delete/{categoryId}', 'ProductCategoriesController@destroy');
 
 
-Route::get('product/subcategories/categoryid/{categoryId}', 'productSubCategoriesController@showByCategoryId');
+Route::middleware('auth:api')->get('product/subcategories/categoryid/{categoryId}', 'productSubCategoriesController@showByCategoryId');
 Route::post('product/subcategories/swap', 'ProductSubCategoriesController@swap');
 Route::post('product/subcategories/update', 'ProductSubCategoriesController@update');
 Route::get('product/subcategories/subcategoryid/{subcategoryId}', 'productSubCategoriesController@showBySubCategoryId');
@@ -67,7 +67,7 @@ Route::post('distributor/contact/update', 'DistributorController@updateContact')
 Route::get('distributor/info/query/{keyword}', 'DistributorController@showInfo');
 Route::get('distributor/inventory/query/{distributorId}', 'DistributorController@showInventory');
 Route::post('distributor/inventory/increase', 'DistributorController@putInventory');
-Route::get('distributor/distributors', 'DistributorController@showAll');
+Route::middleware('auth:api')->get('distributor/distributors', 'DistributorController@showAll');
 Route::delete('distributor/delete/{id}', 'DistributorController@destroy');
 Route::get('distributor/query/{id}', 'DistributorController@showById');
 Route::get('distributor/address/query/{addressId}', 'DistributorController@showAddressById');
@@ -125,6 +125,34 @@ Route::get('refund/get/{orderId}', 'RefundController@showByOrderId');
 Route::post('page/homepage/update', 'PageController@update');
 
 Route::post('page/newcomerpage/update', 'PageController@updateNewComer');
+
+/*
+|--------------------------------------------------------------------------
+| Customer Service Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::get('CustomerService/message/get/{mobile}', 'MessageController@show');
+Route::get('CustomerService/message/checknew', 'MessageController@showNew');
+Route::get('CustomerService/get', 'MessageController@showByCondition');
+Route::get('CustomerService/get/all', 'MessageController@showAll');
+Route::get('CustomerService/get/newcount', 'MessageController@showAllNewCount');
+Route::get('CustomerService/qna/get', 'MessageController@showQnA');
+Route::post('CustomerService/qna/update', 'MessageController@updateQnA');
+Route::get('CustomerService/qna/delete/{id}', 'MessageController@destroyQnA');
+Route::get('CustomerService/qna/get/id/{id}', 'MessageController@getQnAById');
+
+/*
+|--------------------------------------------------------------------------
+| User Management Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::post('users/new', 'UserController@updateOrCreate');
+Route::get('users/getAll', 'UserController@showAll');
+Route::get('users/delete/{id}', 'UserController@destroyById');
+Route::post('users/login', 'UserController@login');
+Route::post('users/update/password', 'UserController@updatePassword');
+Route::get('users/email/unique/{email}', 'UserController@checkEmailUnique');
+
 
 
 
@@ -249,3 +277,11 @@ Route::get('payment/alipay/callback', 'PaymentController@alipayCallback');
 |--------------------------------------------------------------------------
 */
 Route::get('app/version', 'AppVersionController@show');
+
+/*
+|--------------------------------------------------------------------------
+| Customer Service Message Chat Related Routes
+|--------------------------------------------------------------------------
+*/
+Route::post('CustomerService/message/update/', 'MessageController@update');
+Route::get('CustomerService/message/retrieve/{mobile}', 'MessageController@show');

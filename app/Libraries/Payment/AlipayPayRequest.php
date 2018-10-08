@@ -54,19 +54,26 @@ class AlipayPayRequest {
 		$signingContent = $this->prepareSigningContent();
 		Log::debug($signingContent);
 
-		// Step 3: digital sign the rquest string
+		// Step 3: digital sign the request string
 		$my_priv_key_id = openssl_pkey_get_private($this->my_private_key);
 
 		$signaure = '';
 		$result = openssl_sign($signingContent, $signature, $my_priv_key_id, OPENSSL_ALGO_SHA256);
+
+		Log::debug('----------test---------');
+		$signed = '';
+		$test = 'a=123';
+		openssl_sign($test, $signed, $my_priv_key_id, OPENSSL_ALGO_SHA256);		
+		Log::debug(base64_encode($signed));
+
 		openssl_pkey_free($my_priv_key_id);
 
 		if($result) {
 			$this->sign = base64_encode($signature);
 
 			$request_string = $this->urlEncodingRequestContent();
-			// Step 5: replace '+' to %20%20
-	//		$request_string = str_replace('+', '%20', $request_string);
+			 //Step 5: replace '+' to %20%20
+			$request_string = str_replace('+', '%20', $request_string);
 
 			// Step 4: encoding the request content into charset
 			$request_string  .=  '&sign=' . urlencode($this->sign);
@@ -119,11 +126,13 @@ class AlipayPayRequest {
 		$isStart = true;
 		ksort($this->params);
 		foreach ($this->params as $key => $value) {
+			//$value = urlencode(mb_convert_encoding($value, $this->charset));
+			$value = urlencode($value);
 			if($isStart) {
-				$request_string = "$key" . '=' . urlencode(mb_convert_encoding($value, $this->charset));
+				$request_string = "$key" . '=' . $value;
 				$isStart = false;
 			} else {
-				$request_string .= '&' . "$key" . '=' . urlencode(mb_convert_encoding($value, $this->charset));
+				$request_string .= '&' . "$key" . '=' . $value;
 			}
 		}
 

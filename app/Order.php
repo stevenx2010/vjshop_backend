@@ -19,6 +19,7 @@ class Order extends Model
 							'delivery_status',
 							'payment_method',
 							'shipping_address_id',
+							'shipping_charges',
 							'order_status',
 							'is_invoice_required',
 							'invoice_status',

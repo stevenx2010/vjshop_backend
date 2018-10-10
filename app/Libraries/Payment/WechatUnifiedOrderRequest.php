@@ -28,8 +28,17 @@ class WechatUnifiedOrderRequest {
 
 	public $order = [];
 
+	public function __construct($orderSerial) {
+		$this->appid = env('WECHAT_PAY_APP_ID', '');
+		$this->mch_id = env('WECHAT_MCH_ID', '');
+		$this->nonce_str = strtoupper(md5($orderSerial));
+		$this->notify_url = env('WECHAT_NOTIFY_URL');
+	}
+
 	private function fillOrder() {
 		$order = [];
+
+		Log::debug($this->mch_id);
 
 		$order['appid'] = $this->appid;
 		$order['mch_id'] = $this->mch_id;
@@ -87,18 +96,20 @@ class WechatUnifiedOrderRequest {
 		ksort($order);
 		$tempString = '';
 		$isStart = true;
-		foreach($this->order as $key => $value) {
+		foreach($order as $key => $value) {
 			if($value && $value != '' && $key != 'sign') {
 				if($isStart) {
-					$tempString = "$key=$value";
+					$tempString = $key . '=' . $value;
 					$isStart = false;
 				} else {
-					$tempString .= "&$key=$value";
+					$tempString .= '&' . $key . '=' . $value;
 				}
 			}
 		}
 
 		$tempString = $tempString . '&key=' . env('WECHAT_APP_KEY');
+		Log::debug($tempString);
+
 		$order['sign'] = strtoupper(md5($tempString));
 
 		return $order;

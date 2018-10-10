@@ -83,7 +83,8 @@ class UserController extends Controller
     public function login(Request $request)
     {
     	Log::debug($request);
-    	$user = User::where('password', $request['password'])->get();
+
+    	$user = User::where('password', $request['password'])->where('email', $request['email'])->get();
 
     	if($user && count($user) > 0) {
 	    	$user_obj = User::find($user[0]->id);

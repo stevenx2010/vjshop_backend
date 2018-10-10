@@ -14,6 +14,7 @@ use App\Product;
 use App\ProductSubCategory;
 
 use App\Libraries\Utilities\OrderStatus;
+use App\Libraries\Utilities\DeliveryStatus;
 
 use Illuminate\Support\Facades\Log;
 
@@ -142,17 +143,20 @@ class DistributorController extends Controller
             }
 
             // Get shipping address
-            $shipping_address_obj = ShippingAddress::find($order_array['shipping_address_id']);
+            $shipping_address_id = $order_array['shipping_address_id'];
+            $shipping_address_obj = ShippingAddress::find($shipping_address_id);
 
             if($shipping_address_obj == null) {
                 $shipping_address = [];
             }
             else {
-                $shipping_address = $shipping_address_obj->select('id', 'username', 'mobile','tel', 'city', 'street', 'customer_id', 'default_address')->get();
+                $shipping_address = $shipping_address_obj->where('id', $shipping_address_id)->get();
                 $shipping_address_array = json_decode($shipping_address[0], true);
             }   
 
-            Log::debug(json_decode($shipping_address[0], true));
+            Log::debug($shipping_address);
+
+        //    Log::debug(json_decode($shipping_address[0], true));
 
             /*
             $address = [
@@ -579,5 +583,30 @@ class DistributorController extends Controller
         }
 
         return json_encode(['valid' => false]);
+    }
+
+    public function summary(Request $request)
+    {
+        Log::debug($request);
+        $distributor_id = DistributorContact::select('distributor_id')->where('mobile', $request['mobile'])->get();
+        $id = $distributor_id[0]->distributor_id;
+
+        $date1 = $request['date1'] . ' 00:00:00';
+        $date2 = $request['date2'] . ' 23:59:59';
+
+        $waiting_for_delivery = Order::where('distributor_id', $id)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->where('order_date', '>=', $date1)->where('order_date', '<=', $date2)->count();
+
+        $delivered_not_confirm = Order::where('distributor_id', $id)->where('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->where('order_date', '>=', $date1)->where('order_date', '<=', $date2)->count();
+
+        $confirmed = Order::where('distributor_id', $id)->where('delivery_status', DeliveryStatus::CONFIRMED)->where('order_date', '>=', $date1)->where('order_date', '<=', $date2)->count();
+
+        $resp = [
+            'waiting' => $waiting_for_delivery,
+            'not_confirmed' => $delivered_not_confirm,
+            'confirmed' => $confirmed,
+            'total' => $waiting_for_delivery + $delivered_not_confirm + $confirmed
+        ];
+
+        return $resp;
     }
 }

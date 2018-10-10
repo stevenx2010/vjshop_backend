@@ -24,6 +24,8 @@ use App\Libraries\Payment\PaymentMethods;
 use App\Libraries\Payment\AlipayOrderInfo;
 use App\Libraries\Payment\AlipayPayRequest;
 use App\Libraries\Payment\WechatUnifiedOrderRequest;
+use App\Libraries\Payment\WechatPay;
+use App\Libraries\Payment\WechatPayRequest;
 
 use Illuminate\Support\Facades\Log;
 
@@ -238,7 +240,7 @@ class OrderController extends Controller
     public function showDetailByOrderId($orderId)
     {
         $order = Order::find($orderId);
-        $shipping_address = ShippingAddress::where('customer_id', $order->customer_id)->get();
+        $shipping_address = ShippingAddress::where('id', $order->shipping_address_id)->get();
         $customer = Customer::where('id', $order->customer_id)->get();
         $products = $order->products()->get();
         $distributor = Distributor::where('id', $order->distributor_id)->get();
@@ -292,6 +294,7 @@ class OrderController extends Controller
                 'customer_id' => $request['customer_id'],
                 'distributor_id' => $request['distributor_id'],
                 'total_price' => $request['total_price'],
+                'shipping_charges' => $request['shipping_charges'],
                 'total_weight' => $request['total_weight'],
                 'order_date' => $request['order_date'],
                 'delivery_date' => $request['delivery_date'],
@@ -369,19 +372,33 @@ class OrderController extends Controller
         // Assemble payment packets
         switch ($request['payment_method']) {
             case PaymentMethods::WECHAT:
-                // Prepare preorder request
-                $preOrderObj = new WechatUnifiedOrderRequest();
-                $preOrderObj->appid = env('WECHAT_PAY_APP_ID');
-                $preOrderObj->mch_id = env('WECHAT_MCH_ID');
-                $preOrderObj->nonce_str = strtoupper(md5($request['order_serial']));
+                // Step 1: Prepare preorder request
+                $preOrderObj = new WechatUnifiedOrderRequest($request['order_serial']);
+                //$preOrderObj->appid = env('WECHAT_PAY_APP_ID');
+                //$preOrderObj->mch_id = env('WECHAT_MCH_ID');
+                //$preOrderObj->nonce_str = strtoupper(md5($request['order_serial']));
                 $preOrderObj->body .= $order_body;
                 $preOrderObj->out_trade_no = $request['order_serial'];
-                $preOrderObj->total_fee = round($order_price * 100);
+                $preOrderObj->total_fee = 100; // round($order_price * 100); test 1 cent
                 $preOrderObj->spbill_create_ip = $request->ip();
-                $preOrderObj->notify_url = env('WECHAT_NOTIFY_URL');
+                //$preOrderObj->notify_url = env('WECHAT_NOTIFY_URL');
+              
+                $prePayRequest = $preOrderObj->getPreOrderRequest();
 
-                Log::debug($preOrderObj->getPreOrderRequest());
-                $final_resp = $preOrderObj->getPreOrderRequest();
+                 Log::debug($prePayRequest);
+
+                // Step 2: send preorder request to Wechat Service to the prepayId
+                $wechatPayObj = new WechatPay($prePayRequest, env('WECHAT_UNIFIED_ORDER_URL'));
+
+                $prepayId = '';
+                if($wechatPayObj->sendUnifiedOrderRequest()) {
+                    $prepayId = $wechatPayObj->getPrepayId();
+                }
+
+                // Step 3: prepare the pay request with the prepayId
+                $payRequestObj = new WechatPayRequest($prepayId, $request['order_serial']);
+
+                $final_resp = $payRequestObj->getWechatPayRequest();
                 break;
             
             case PaymentMethods::ALIPAY:

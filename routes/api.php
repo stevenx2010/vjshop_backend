@@ -27,7 +27,6 @@ Route::get('HomePageImages/images/{position}', 'HomePageImagesController@show');
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth:api')->get('product/categories', 'ProductCategoriesController@index');
 Route::middleware('auth:api')->get('product/categories/console', 'ProductCategoriesController@index_console');
 Route::middleware('auth:api')->post('product/categories', 'ProductCategoriesController@store');
 Route::middleware('auth:api')->post('product/categories/swap', 'ProductCategoriesController@swap');
@@ -36,7 +35,7 @@ Route::middleware('auth:api')->post('product/categories/update', 'ProductCategor
 Route::middleware('auth:api')->delete('product/categories/delete/{categoryId}', 'ProductCategoriesController@destroy');
 
 
-Route::middleware('auth:api')->get('product/subcategories/categoryid/{categoryId}', 'productSubCategoriesController@showByCategoryId');
+Route::get('product/subcategories/categoryid/{categoryId}', 'productSubCategoriesController@showByCategoryId');
 Route::post('product/subcategories/swap', 'ProductSubCategoriesController@swap');
 Route::post('product/subcategories/update', 'ProductSubCategoriesController@update');
 Route::get('product/subcategories/subcategoryid/{subcategoryId}', 'productSubCategoriesController@showBySubCategoryId');
@@ -153,6 +152,15 @@ Route::post('users/login', 'UserController@login');
 Route::post('users/update/password', 'UserController@updatePassword');
 Route::get('users/email/unique/{email}', 'UserController@checkEmailUnique');
 
+/*
+|--------------------------------------------------------------------------
+| Setting Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::get('setting/shipping/get/all', 'SettingController@showShippingAll');
+Route::post('setting/shipping/update', 'SettingController@updateOrCreateShipping');
+Route::get('setting/shipping/delete/{id}', 'SettingController@destroyById');
+
 
 
 
@@ -169,6 +177,8 @@ Route::get('users/email/unique/{email}', 'UserController@checkEmailUnique');
 | Product Routes for APP
 |--------------------------------------------------------------------------
 */
+
+Route::get('product/categories', 'ProductCategoriesController@index');
 
 // Get all products
 Route::get('product/all', 'ProductsController@index');
@@ -227,6 +237,7 @@ Route::get('distributor/info/mobile/{mobile}', 'DistributorController@showInfoBy
 Route::get('distributor/info/city/{city}', 'DistributorController@showInfoByLocation');
 Route::get('distributor/inventory/productId/{distributorId}/{productId}', 'DistributorController@showInventoryByProductId');
 Route::get('distributor/login/check/{mobile}', 'DistributorController@checkLogin');
+Route::post('distributor/summary/orders', 'DistributorController@summary');
 
 /*
 |--------------------------------------------------------------------------
@@ -285,3 +296,11 @@ Route::get('app/version', 'AppVersionController@show');
 */
 Route::post('CustomerService/message/update/', 'MessageController@update');
 Route::get('CustomerService/message/retrieve/{mobile}', 'MessageController@show');
+
+
+/*
+|--------------------------------------------------------------------------
+| Setting (Shipping Fee) Related Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('setting/shipping/formula/{weight}', 'SettingController@showFormula');

@@ -388,24 +388,24 @@ class OrderController extends Controller
                 } 
                 $order_subject = $thisProductDetails_array[0]['product_sub_category_name'];
         
-            }
+            
+                // set these coupons as used
+                $user = Customer::find($request['customer_id']);
 
-            // set these coupons as used
-            $user = Customer::find($request['customer_id']);
-
-            // Attach/Update coupons
-            foreach($request['coupon_used_ids'] as $id) {
-                foreach($user->coupons as $c) {
-                    if($c['id'] == $id) {
-                        $user->coupons()->detach($id);
-                        $user->coupons()->attach([$id => ['quantity' => 0]]);
+                // Attach/Update coupons
+                foreach($request['coupon_used_ids'] as $id) {
+                    foreach($user->coupons as $c) {
+                        if($c['id'] == $id) {
+                            $user->coupons()->detach($id);
+                            $user->coupons()->attach([$id => ['quantity' => 0]]);
+                        }
                     }
-                }
 
-                $coupon = Coupon::find($id);
+                    $coupon = Coupon::find($id);
 
-                if(!$thisOrder->coupons->contains($coupon)) {
-                    $thisOrder->coupons()->attach($id);
+                    if(!$thisOrder->coupons->contains($coupon)) {
+                        $thisOrder->coupons()->attach($id);
+                    }
                 }
             }
         } else { // existing unpaid order

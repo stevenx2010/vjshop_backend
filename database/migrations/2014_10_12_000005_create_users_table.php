@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('password', 255);
             $table->string('api_token', 250);
             $table->string('image_url')->default('imgs/user.gif');
+            $table->integer('roles')->default(0);
             $table->boolean('first_login')->default(true);
             $table->datetime('last_login');
             $table->rememberToken();

@@ -47,15 +47,16 @@ class WechatPayRequest {
 		foreach ($request as $key => $value) {
 			if($value && $key != 'sign') {
 				if($isStart) {
-					$tempString = "$key=$value";
+					$tempString = $key . '=' . $value;
 					$isStart = false;
 				} else {
-					$tempString .= "&$key=$value";
+					$tempString .= '&' . $key . '=' . $value;
 				}
 			} 
 		}
 
-		$tempString .= "&key=$this->key";
+		$tempString = $tempString .  '&key=' . $this->key;
+		Log::debug($tempString);
 
 		$request['sign'] = strtoupper(md5($tempString));
 		return $request;

@@ -36,7 +36,9 @@ class WechatPay {
 			curl_close($ch);
 		}	
 
-		return $this->response['prepay_id'] ? true : false;	
+		if($this->response['return_code'] == 'FAIL') return false;
+		else 
+			return $this->response['prepay_id'] ? true : false;	
 	}
 
 	private function parseResponse($resp) {

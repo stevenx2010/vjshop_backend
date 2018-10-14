@@ -387,7 +387,7 @@ class OrderController extends Controller
 
                  Log::debug($prePayRequest);
 
-                // Step 2: send preorder request to Wechat Service to the prepayId
+                // Step 2: send preorder request to Wechat Service to get the prepayId
                 $wechatPayObj = new WechatPay($prePayRequest, env('WECHAT_UNIFIED_ORDER_URL'));
 
                 $prepayId = '';

@@ -84,7 +84,7 @@ class UserController extends Controller
     {
     	Log::debug($request);
 
-    	$user = User::where('password', $request['password'])->where('email', $request['email'])->get();
+    	$user = User::where('password', $request['password'])->where('email', $request['email'])->where('name', '!=', 'vjadmin')->get();
 
     	if($user && count($user) > 0) {
 	    	$user_obj = User::find($user[0]->id);
@@ -114,6 +114,14 @@ class UserController extends Controller
 
     	if(count($result) > 0) return json_encode(['status' => 0]);
     	else return json_encode(['status' => 1]);
+    }
+
+    public function updateRoles(Request $request)
+    {
+        $user = User::find($request['id']);
+        $user->roles = $request['roles'];
+
+        $user->save();
     }
 }
 

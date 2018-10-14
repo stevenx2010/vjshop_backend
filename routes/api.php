@@ -151,6 +151,7 @@ Route::get('users/delete/{id}', 'UserController@destroyById');
 Route::post('users/login', 'UserController@login');
 Route::post('users/update/password', 'UserController@updatePassword');
 Route::get('users/email/unique/{email}', 'UserController@checkEmailUnique');
+Route::post('users/roles/update','UserController@updateRoles');
 
 /*
 |--------------------------------------------------------------------------

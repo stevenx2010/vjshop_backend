@@ -51,4 +51,5 @@ class Order extends Model
     public function refund() {
     	return $this->hasOne('App\Refund');
     }
+
 }

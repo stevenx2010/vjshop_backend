@@ -84,22 +84,29 @@ class ProductsController extends Controller
         return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'thumbnail_url')->where('name', 'LIKE', "%{$keyword}%")->get();
     }
 
-    public function showProductsByIds(Request $reqeust)
+    public function showProductsByIds(Request $request)
     {
-        $req = $reqeust->json()->all();
+        Log::debug($request);
+        $req = $request->json()->all();
+        Log::debug($req);
         $products = [];
 
         foreach ($req as $key) {
           //  if($key['selected']) {
                 $productId = $key['productId'];
-                
-                $product = Product::select('id', 'name', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url','price', 'sold_amount', 'weight')->where('id', $productId)->get();
+              /*  
+                $product = Product::select('id', 'name', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url','price', 'sold_amount', 'weight')->where('id', $productId)->get();*/
+
+                $product = Product::where('id', $productId)->get();
 
                 array_push($products, $product);
          //   }
         }
+
+        Log::debug($products);
     
-        return response(json_encode($products), 200)->header('Content-type', 'application/json');
+       // return response(json_encode($products), 200)->header('Content-type', 'application/json');
+        return $products;
     }
 
     public function showProductsBySubCategoryId($productSubCategoryId) 

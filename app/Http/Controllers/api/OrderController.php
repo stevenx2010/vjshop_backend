@@ -104,6 +104,38 @@ class OrderController extends Controller
         return json_encode($final_resp);
     }
 
+   public function showOrdersByStatusPaged($mobile, $orderStatus, $page) 
+    {
+        $page_size = 10;
+        Log::debug($mobile);
+        $user = Customer::where('mobile', $mobile);
+        $userId = (json_decode($user->get(), true))[0]['id'];
+        $user_obj = Customer::find($userId);
+
+        switch($orderStatus) {
+            case 'to_pay':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::NOT_PAY_YET)->skip($page * $page_size)->limit($page_size)->get();
+                $final_resp = $this->processOrders($orders);
+                break;
+            case 'to_delivery':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAYED)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
+                $final_resp = $this->processOrders($orders);
+                break;
+            case 'to_receive':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->orWhere('order_status', OrderStatus::COMMENTED)->where('delivery_status', DeliveryStatus::CONFIRMED)->get();
+                $final_resp = $this->processOrders($orders);            
+                break;
+            case 'to_comment':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->where('delivery_status', DeliveryStatus::CONFIRMED)->where('comment_status', CommentStatus::NOT_COMMENTED)->get();
+                $final_resp = $this->processOrders($orders);
+                break;
+        }
+
+        usort($final_resp, array($this, 'cmp'));
+
+        return json_encode($final_resp);
+    }
+
     public function cmp($a, $b)
     {
         return strcmp($b['order_date'], $a['order_date']);
@@ -124,6 +156,9 @@ class OrderController extends Controller
                 $shoppingItem['weight'] = $product->weight;
                 $shoppingItem['weight_unit'] = $product->weight_unit;
                 $shoppingItem['selected'] = true;
+
+                $thumbnail_url = Product::select('thumbnail_url')->where('id', $product->id)->get();
+                $shoppingItem['thumbnail_url'] = $thumbnail_url[0]->thumbnail_url;
 
                 array_push($shoppingItems, $shoppingItem);
 
@@ -286,91 +321,120 @@ class OrderController extends Controller
         Log::debug($request);
         Log::debug($request['shipping_address']['id']);
 
-        // Update/Create Order Basic info
-        $order = Order::updateOrCreate(
-            ['order_serial' => $request['order_serial']],
-            [
-                'order_serial' => $request['order_serial'],
-                'customer_id' => $request['customer_id'],
-                'distributor_id' => $request['distributor_id'],
-                'total_price' => $request['total_price'],
-                'shipping_charges' => $request['shipping_charges'],
-                'total_weight' => $request['total_weight'],
-                'order_date' => $request['order_date'],
-                'delivery_date' => $request['delivery_date'],
-                'delivery_status' => $request['delivery_status'],
-                'payment_method' => $request['payment_method'],
-                'shipping_address_id' => $request['shipping_address']['id'],
-                'order_status' => $request['order_status'],
-                'is_invoice_required'=> $request['is_invoice_required'],
-                'invoice_status' => $request['invoice_status'],
-                'invoice_head' =>$request['invoice_head'],
-                'invoice_tax_number' => $request['invoice_tax_number'],
-                'invoice_type' => $request['invoice_type']
-                ]
-            );
-
-        $order_id = json_decode($order, true)['id'];
-
-        // Attach/Update product_ids & Calculate Order Price
+        $payment_method = $request['payment_method'];
+        $order_id = $request['id'];
         $order_price = 0;   
-        $order_body = '';   
+        $order_body = 'VJ';   
         $order_subject = '';
 
-        foreach($request['products'] as $product) {
-            Log::debug($product);
-            $thisOrder = Order::find($order_id);
+        if($order_id == null) {     // new order to pay
 
-            $product_id =$product['productId'];
-            $thisProduct = Product::find($product_id);
-
-            $thisProductDetails = Product::select('model', 'name', 'product_sub_category_name', 'description')->where('id', $product_id)->get();
-            $thisProductDetails_array = json_decode($thisProductDetails, true);
-            Log::debug($thisProductDetails_array);
-
-            if($thisOrder->products->contains($thisProduct)) {
-                $thisOrder->updateExistingPivot($product_id,
-                    [   'price' => $product['price'],
-                        'quantity' => $product['quantity']
+            // Update/Create Order Basic info
+            $order = Order::updateOrCreate(
+                ['order_serial' => $request['order_serial']],
+                [
+                    'order_serial' => $request['order_serial'],
+                    'customer_id' => $request['customer_id'],
+                    'distributor_id' => $request['distributor_id'],
+                    'total_price' => $request['total_price'],
+                    'shipping_charges' => $request['shipping_charges'],
+                    'total_weight' => $request['total_weight'],
+                    'order_date' => $request['order_date'],
+                    'delivery_date' => $request['delivery_date'],
+                    'delivery_status' => $request['delivery_status'],
+                    'payment_method' => $request['payment_method'],
+                    'shipping_address_id' => $request['shipping_address']['id'],
+                    'order_status' => $request['order_status'],
+                    'is_invoice_required'=> $request['is_invoice_required'],
+                    'invoice_status' => $request['invoice_status'],
+                    'invoice_head' =>$request['invoice_head'],
+                    'invoice_tax_number' => $request['invoice_tax_number'],
+                    'invoice_type' => $request['invoice_type']
                     ]
                 );
-            } else {
-                $thisOrder->products()->attach([$product_id => 
-                    [   'price' => $product['price'], 
-                        'quantity' => $product['quantity']
-                    ]
-                ]);
+
+            $order_id = json_decode($order, true)['id'];
+
+            // Attach/Update product_ids & Calculate Order Price
+            foreach($request['products'] as $product) {
+                Log::debug($product);
+                $thisOrder = Order::find($order_id);
+
+                $product_id =$product['productId'];
+                $thisProduct = Product::find($product_id);
+
+                $thisProductDetails = Product::select('model', 'name', 'product_sub_category_name', 'description')->where('id', $product_id)->get();
+                $thisProductDetails_array = json_decode($thisProductDetails, true);
+                Log::debug($thisProductDetails_array);
+
+                if($thisOrder->products->contains($thisProduct)) {
+                    $thisOrder->updateExistingPivot($product_id,
+                        [   'price' => $product['price'],
+                            'quantity' => $product['quantity']
+                        ]
+                    );
+                } else {
+                    $thisOrder->products()->attach([$product_id => 
+                        [   'price' => $product['price'], 
+                            'quantity' => $product['quantity']
+                        ]
+                    ]);
+                }
+
+                $order_price += $product['price'] * $product['quantity'];
+
+                if(strlen($order_body) < 120) {
+                    $order_body = $order_body . '-' . $thisProductDetails_array[0]['model'];
+                } 
+                $order_subject = $thisProductDetails_array[0]['product_sub_category_name'];
+        
             }
 
-            $order_price += $product['price'] * $product['quantity'];
+            // set these coupons as used
+            $user = Customer::find($request['customer_id']);
 
-            if(strlen($order_body) < 120) {
-                $order_body = $order_body . '-' . $thisProductDetails_array[0]['model'];
-            } 
-            $order_subject = $thisProductDetails_array[0]['product_sub_category_name'];
-        }
+            // Attach/Update coupons
+            foreach($request['coupon_used_ids'] as $id) {
+                foreach($user->coupons as $c) {
+                    if($c['id'] == $id) {
+                        $user->coupons()->detach($id);
+                        $user->coupons()->attach([$id => ['quantity' => 0]]);
+                    }
+                }
 
-        // set these coupons as used
-        $user = Customer::find($request['customer_id']);
+                $coupon = Coupon::find($id);
 
-        // Attach/Update coupons
-        foreach($request['coupon_used_ids'] as $id) {
-            foreach($user->coupons as $c) {
-                if($c['id'] == $id) {
-                    $user->coupons()->detach($id);
-                    $user->coupons()->attach([$id => ['quantity' => 0]]);
+                if(!$thisOrder->coupons->contains($coupon)) {
+                    $thisOrder->coupons()->attach($id);
                 }
             }
+        } else { // existing unpaid order
+            $order = Order::find($request['id']);
+            $order->payment_method = $request['payment_method'];
+            $order->order_date = $request['order_date'];
+            $order->order_serial = $request['order_serial'];
+            $order->save();
 
-            $coupon = Coupon::find($id);
+            // calculate the total price
+            foreach($request['products'] as $product) {
+                $order_price += $product['price'] * $product['quantity'];
 
-            if(!$thisOrder->coupons->contains($coupon)) {
-                $thisOrder->coupons()->attach($id);
+                $thisProductDetails = Product::where('id', $product['productId'])->get();
+                $thisProductDetails_array = json_decode($thisProductDetails, true);
+
+                if(strlen($order_body) < 120) {
+                    $order_body = $order_body . '-' . $thisProductDetails_array[0]['model'];
+                } 
+                $order_subject = $thisProductDetails_array[0]['product_sub_category_name'];
             }
-        }
+        }           
+
+        Log::debug($order_price);
+        Log::debug($order_body);
+        Log::debug($order_subject);
 
         // Assemble payment packets
-        switch ($request['payment_method']) {
+        switch ($payment_method) {
             case PaymentMethods::WECHAT:
                 // Step 1: Prepare preorder request
                 $preOrderObj = new WechatUnifiedOrderRequest($request['order_serial']);
@@ -379,7 +443,7 @@ class OrderController extends Controller
                 //$preOrderObj->nonce_str = strtoupper(md5($request['order_serial']));
                 $preOrderObj->body .= $order_body;
                 $preOrderObj->out_trade_no = $request['order_serial'];
-                $preOrderObj->total_fee = 100; // round($order_price * 100); test 1 cent
+                $preOrderObj->total_fee = 1; // round($order_price * 100); test 1 cent
                 $preOrderObj->spbill_create_ip = $request->ip();
                 //$preOrderObj->notify_url = env('WECHAT_NOTIFY_URL');
               
@@ -438,6 +502,14 @@ class OrderController extends Controller
             
             $order->save();
         }
+    }
+
+    public function updatePaymentMethod($orderId, $paymentMethod)
+    {
+        $order = Order::find($orderId);
+        $order->payment_method = $paymentMethod;
+
+        $order->save();
     }
     /**
      * Remove the specified resource from storage.

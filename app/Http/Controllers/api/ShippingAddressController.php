@@ -79,6 +79,13 @@ class ShippingAddressController extends Controller
 
         return json_encode(['user_id' => $userId, 'has_number_of_address' => $addresses]);
     }
+
+    public function showShippingAddressById($addressId) 
+    {
+        return ShippingAddress::where('id', $addressId)->get();
+    }
+
+
     /**
      * Show the form for editing the specified resource.
      *

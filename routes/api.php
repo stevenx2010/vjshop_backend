@@ -221,6 +221,7 @@ Route::get('address/all/{mobile}', 'ShippingAddressController@show');
 Route::get('address/default/{mobile}', 'ShippingAddressController@showDefault');
 Route::get('address/userid/{mobile}', 'ShippingAddressController@showUserId');
 Route::delete('address/id/{addressId}', 'ShippingAddressController@destroy');
+Route::get('address/query/id/{addressId}', 'ShippingAddressController@showShippingAddressById');
 
 
 /*
@@ -261,8 +262,10 @@ Route::get('coupon/coupons_filtered/{mobile}', 'CouponsController@showCouponsFil
 Route::post('order/submit', 'OrderController@update');
 Route::get('order/update/delivery/{orderId}/{status}/{datetime}', 'OrderController@updateDeliveryStatus');
 Route::get('order/myorders/{mobile}/{orderStatus}', 'OrderController@showOrdersByStatus');
+Route::get('order/myorders/{mobile}/{orderStatus}/{page}', 'OrderController@showOrdersByStatusPaged');
 Route::delete('order/delete/id/{orderId}', 'OrderController@destroy');
 Route::delete('order/delete/orderSerial/{orderSerial}', 'OrderController@destroyByOrderSerial');
+Route::get('order/update/paymentMethod/{orderId}/{paymentMethod}', 'OrderController@updatePaymentMethod');
 
 
 /*

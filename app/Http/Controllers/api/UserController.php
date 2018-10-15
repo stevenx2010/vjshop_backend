@@ -40,6 +40,8 @@ class UserController extends Controller
 
     	$now = new \DateTime('now');
     	$last_login = $now->format('Y-m-d H:i:s');
+        
+        if($image_url == null) $image_url = 'imgs/user.gif';
 
     	$user = User::updateOrCreate(
     		['id' => $id], 

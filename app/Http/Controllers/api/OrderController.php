@@ -13,12 +13,14 @@ use App\ShippingAddress;
 use App\Distributor;
 use App\DistributorContact;
 use App\DistributorAddress;
+use App\AppLog;
 
 use App\Libraries\Utilities\DeliveryStatus;
 use App\Libraries\Utilities\OrderStatus;
 use App\Libraries\Utilities\CommentStatus;
 use App\Libraries\Utilities\InvoiceStatus;
 use App\Libraries\Utilities\RefundStatus;
+use App\Libraries\Utilities\LogType;
 
 use App\Libraries\Payment\PaymentMethods;
 use App\Libraries\Payment\AlipayOrderInfo;
@@ -86,7 +88,7 @@ class OrderController extends Controller
                 $final_resp = $this->processOrders($orders);
                 break;
             case 'to_delivery':
-                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAYED)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
                 $final_resp = $this->processOrders($orders);
                 break;
             case 'to_receive':
@@ -118,7 +120,7 @@ class OrderController extends Controller
                 $final_resp = $this->processOrders($orders);
                 break;
             case 'to_delivery':
-                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAYED)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
                 $final_resp = $this->processOrders($orders);
                 break;
             case 'to_receive':
@@ -433,19 +435,19 @@ class OrderController extends Controller
         Log::debug($order_body);
         Log::debug($order_subject);
 
+        $this->doLog(LogType::ORDER_FROM_USER, $request['order_serial'], json_encode($request));
+
         // Assemble payment packets
         switch ($payment_method) {
             case PaymentMethods::WECHAT:
                 // Step 1: Prepare preorder request
                 $preOrderObj = new WechatUnifiedOrderRequest($request['order_serial']);
-                //$preOrderObj->appid = env('WECHAT_PAY_APP_ID');
-                //$preOrderObj->mch_id = env('WECHAT_MCH_ID');
-                //$preOrderObj->nonce_str = strtoupper(md5($request['order_serial']));
                 $preOrderObj->body .= $order_body;
                 $preOrderObj->out_trade_no = $request['order_serial'];
+
+                //**************** CHANGE THIS LINE IN PRODUCTON *******************//
                 $preOrderObj->total_fee = 1; // round($order_price * 100); test 1 cent
                 $preOrderObj->spbill_create_ip = $request->ip();
-                //$preOrderObj->notify_url = env('WECHAT_NOTIFY_URL');
               
                 $prePayRequest = $preOrderObj->getPreOrderRequest();
 
@@ -454,15 +456,20 @@ class OrderController extends Controller
                 // Step 2: send preorder request to Wechat Service to get the prepayId
                 $wechatPayObj = new WechatPay($prePayRequest, env('WECHAT_UNIFIED_ORDER_URL'));
 
+                $this->doLog(LogType::PAYMENT_WECHAT_OUT, $request['order_serial'], $wechatPayObj->getRequest());
+
                 $prepayId = '';
                 if($wechatPayObj->sendUnifiedOrderRequest()) {
                     $prepayId = $wechatPayObj->getPrepayId();
+                    $this->doLog(LogType::PAYMENT_WECHAT_IN, $request['order_serial'], $wechatPayObj->getResponseRaw());
                 }
 
                 // Step 3: prepare the pay request with the prepayId
                 $payRequestObj = new WechatPayRequest($prepayId, $request['order_serial']);
 
                 $final_resp = $payRequestObj->getWechatPayRequest();
+
+                $this->doLog(LogType::ORDER_BACKTO_USER, $request['order_serial'], json_encode($final_resp));
                 break;
             
             case PaymentMethods::ALIPAY:
@@ -497,6 +504,9 @@ class OrderController extends Controller
                     break;
                 case DeliveryStatus::CONFIRMED:
                     $order->delivery_confirm_date = $datetime;
+                    // Update invoice_status, comment_status
+                    $order->invoice_status = InvoiceStatus::NOT_ISSUED;
+                    $order->comment_status = CommentStatus::NOT_COMMENTED;
                     break;
             }
             
@@ -533,4 +543,13 @@ class OrderController extends Controller
     {
         return Order::where('order_serial', $orderSerial)->delete();
     }
+
+    private function doLog($type, $key, $content) {
+        $log = new AppLog();
+        $log->log_type = $type;
+        $log->log_key = $key;
+        $log->content = $content;
+        $log->save();
+    }
+
 }

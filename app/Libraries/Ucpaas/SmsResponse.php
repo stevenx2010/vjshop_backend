@@ -12,7 +12,7 @@ class SmsResponse
 	public $mobile = '';
 	public $uid = '';
 
-	public function __constructor()
+	public function __construct()
 	{
 
 	}

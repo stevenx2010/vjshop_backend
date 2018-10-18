@@ -283,8 +283,9 @@ Route::get('comment/not_commented/{orderId}', 'CommentController@showProductsNot
 | Payment Related Routes
 |--------------------------------------------------------------------------
 */
-Route::get('payment/alipay', 'PaymentController@alipay');
-Route::get('payment/alipay/callback', 'PaymentController@alipayCallback');
+Route::post('payment/alipay', 'PaymentController@alipay');
+Route::post('payment/alipay/callback', 'PaymentController@alipayCallback');
+Route::post('payment/wechat', 'PaymentController@wechat');
 
 /*
 |--------------------------------------------------------------------------

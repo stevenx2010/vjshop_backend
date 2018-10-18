@@ -64,7 +64,7 @@ class AlipayPayRequest {
 		$signed = '';
 		$test = 'a=123';
 		openssl_sign($test, $signed, $my_priv_key_id, OPENSSL_ALGO_SHA256);		
-		Log::debug(base64_encode($signed));
+//		Log::debug(base64_encode($signed));
 
 		openssl_pkey_free($my_priv_key_id);
 

@@ -191,10 +191,6 @@ class CommentController extends Controller
 
         $products = $order->products()->get();
 
-        Log::debug('xxxxxxxxxxxxxxxxxx');
-        Log::debug(count($products));
-        Log::debug($number);
-
         if($number == count($products)) { // all products have been commented
             $order->order_status = OrderStatus::COMMENTED;
             $order->comment_status = CommentStatus::COMMENTED;

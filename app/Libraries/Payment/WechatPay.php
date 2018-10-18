@@ -9,6 +9,7 @@ class WechatPay {
 	private $request;
 	private $request_url;
 	private $response = [];
+	private $responseRaw;
 
 	public function __construct($request, $request_url) {
 		$this->request = $request;
@@ -31,6 +32,8 @@ class WechatPay {
 		} else {
 			$result = curl_exec($ch);
 			Log::debug($result);
+			
+			$this->responseRaw = $result;
 
 			$this->parseResponse($result);
 			curl_close($ch);
@@ -62,5 +65,13 @@ class WechatPay {
 
 	public function getPrepayId() {
 		return $this->response['prepay_id'];
+	}
+
+	public function getRequest() {
+		return $this->request;
+	}
+
+	public function getResponseRaw() {
+		return $this->responseRaw;
 	}
 }

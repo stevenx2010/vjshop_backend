@@ -444,6 +444,25 @@ class DistributorController extends Controller
         }
     }
 
+
+    public function showAllInfoById($distributorId)
+    {
+        $distributorObj = Distributor::find($distributorId);
+
+        $distributors = Distributor::where('id', $distributorId)->get();
+        $addresses = $distributorObj->addresses()->get();
+        $contacts = $distributorObj->contacts()->get();
+
+        $final_resp = [];
+
+        $final_resp = $distributors[0];
+        
+        $final_resp['addresses'] = $addresses;
+        $final_resp['contacts'] = $contacts;
+
+        return $final_resp;
+
+    }
     /**
      * Show the form for editing the specified resource.
      *

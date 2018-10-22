@@ -240,6 +240,7 @@ Route::get('distributor/info/city/{city}', 'DistributorController@showInfoByLoca
 Route::get('distributor/inventory/productId/{distributorId}/{productId}', 'DistributorController@showInventoryByProductId');
 Route::get('distributor/login/check/{mobile}', 'DistributorController@checkLogin');
 Route::post('distributor/summary/orders', 'DistributorController@summary');
+Route::get('distributor/allinfo/{distributorId}', 'DistributorController@showAllInfoById');
 
 /*
 |--------------------------------------------------------------------------

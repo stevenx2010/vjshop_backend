@@ -55,12 +55,10 @@ class CouponTypesController extends Controller
         $coupon_type_array = json_decode($couponTypes, true);
 
         foreach ($coupon_type_array as $t) {
-            Log::debug($t);
-            Log::debug('xxxxxxxx');
             $id = $t['id'];
             $coupon_type_obj = CouponType::find($id);
             $resp = $t;           
-            $resp['coupons'] = $coupon_type_obj->coupons()->get();
+            $resp['coupons'] = $coupon_type_obj->coupons()->where('for_new_comer', false)->get();
 
             array_push($final_resp, $resp);
         }

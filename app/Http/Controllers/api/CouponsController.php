@@ -177,7 +177,7 @@ class CouponsController extends Controller
                 'discount_value' => $request['discount_value'],
                 'quantity_initial' => $request['quantity_initial'],
                 'quantity_available' => $request['quantity_initial'],
-                'for_new_comer' => $request['for_new_comer'],
+                'for_new_comer' => $for_new_comer,
                 'image_url' => $image_url
             ]
         );

@@ -35,10 +35,10 @@ Route::middleware('auth:api')->post('product/categories/update', 'ProductCategor
 Route::middleware('auth:api')->delete('product/categories/delete/{categoryId}', 'ProductCategoriesController@destroy');
 
 
-Route::get('product/subcategories/categoryid/{categoryId}', 'productSubCategoriesController@showByCategoryId');
+Route::get('product/subcategories/categoryid/{categoryId}', 'ProductSubCategoriesController@showByCategoryId');
 Route::post('product/subcategories/swap', 'ProductSubCategoriesController@swap');
 Route::post('product/subcategories/update', 'ProductSubCategoriesController@update');
-Route::get('product/subcategories/subcategoryid/{subcategoryId}', 'productSubCategoriesController@showBySubCategoryId');
+Route::get('product/subcategories/subcategoryid/{subcategoryId}', 'ProductSubCategoriesController@showBySubCategoryId');
 Route::delete('product/subcategories/delete/{subCategoryId}', 'ProductSubCategoriesController@destroy');
 Route::get('product/categories/subCatId/{subCatId}', 'ProductSubCategoriesController@showCatId');
 

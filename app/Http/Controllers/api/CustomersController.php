@@ -17,6 +17,7 @@ use Lcobucci\JWT\Parser;
 
 use App\Customer;
 use App\ShippingAddress;
+use App\Coupon;
 
 use App\Libraries\Ucpaas\SmsRequest;
 use App\Libraries\Ucpaas\SmsResponse;
@@ -79,11 +80,10 @@ class CustomersController extends Controller
         if($resp['code'] ==='000000') $smsSendStatus = SEND_SMS_CODE_SUCCESS;
         else $smsSendStatus = SEND_SMS_CODE_FAILURE;
 
-        // step 2: if succeeded, store the the sms in memcached temporarily 
-        Cache::put($request['mobile'], $rand_number, 1);  // expires after 1 minute;
-
         // step 3: send SMS sending status back to user
         if($smsSendStatus == SEND_SMS_CODE_SUCCESS) {
+            // store the the sms in memcached temporarily 
+            Cache::put($request['mobile'], $rand_number, 1);  // expires after 1 minute;
             // response result to customer
             return response(json_encode(['status'=> $smsSendStatus, 'mobile'=> $request['mobile']]), 200)->header('Content-type', 'application/json');
         } else {
@@ -135,15 +135,25 @@ class CustomersController extends Controller
 
                 // then insert it into db
                 $newUser = new Customer;
-              //  $newUser->username = ''; // Currently have no username, will update after creating shipping address
+                //  $newUser->username = ''; // Currently have no username, will update after creating shipping address
                 $newUser->mobile = $request['mobile'];
-                $newUser->access_token = '' . $access_token;
+                $newUser->access_token = '' . $access_token;  // convert to string
                 $newUser->new_user =true;
                 $newUser->save();
 
                 $response['new_user'] = true;
+                $response['text'] = 'New user: logged in, user info saved';
 
-                $response['text'] = 'New user: logged in, info saved';
+                // associate coupons for newuser to this user
+                $coupons = Coupon::where('for_new_user', true)->where('expired', false)->where('quantity_available', -1)->orWhere('quantity_available', '>', 0)->get();
+                if($coupons && count($coupons) > 0) {
+                  foreach ($coupons as $coupon) {
+                    $coupon_id = $coupon['id'];
+                    $newUser->coupons()->attach(
+                      [$coupn_id => ['quantity' => 1]]
+                    );
+                  }
+                }
             } else {
                 // old user, check if access token expired
                 if(!($this->checkToken($request['mobile']))) { 

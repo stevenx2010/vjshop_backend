@@ -163,6 +163,8 @@ class CouponsController extends Controller
             $file->move(base_path('public/imgs'), $hashName);
         }
 
+        $for_new_comer = intval($request['for_new_comer']) ? true : false;
+
         // 2. fill the db
         $coupon = Coupon::updateOrCreate(
             ['id' => $request['id']],
@@ -193,5 +195,11 @@ class CouponsController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function destroyById($couponId)
+    {
+        $coupon = Coupon::find($couponId);
+        $coupon->delete();
     }
 }

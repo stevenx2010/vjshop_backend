@@ -90,6 +90,7 @@ Route::delete('front/coupon/type/delete/id/{couponTypeId}', 'CouponTypesControll
 Route::post('front/coupon/query', 'CouponsController@showCoupons');
 Route::post('front/coupon/update', 'CouponsController@updateOrCreateCoupon');
 Route::get('front/coupon/query/id/{couponId}', 'CouponsController@showCouponById');
+Route::delete('front/coupon/delete/id/{couponId}', 'CouponsController@destroyById');
 
 /*
 |--------------------------------------------------------------------------
@@ -284,9 +285,9 @@ Route::get('comment/not_commented/{orderId}', 'CommentController@showProductsNot
 | Payment Related Routes
 |--------------------------------------------------------------------------
 */
-Route::post('payment/alipay', 'PaymentController@alipay')->middleware('appauth');
-Route::post('payment/alipay/callback', 'PaymentController@alipayCallback')->middleware('appauth');
-Route::post('payment/wechat', 'PaymentController@wechat')->middleware('appauth');
+Route::post('payment/alipay', 'PaymentController@alipay');
+Route::post('payment/alipay/callback', 'PaymentController@alipayCallback');
+Route::post('payment/wechat', 'PaymentController@wechat');
 
 /*
 |--------------------------------------------------------------------------

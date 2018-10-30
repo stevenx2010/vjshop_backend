@@ -492,7 +492,7 @@ class OrderController extends Controller
 
     }
 
-    public function updateDeliveryStatus($orderId, $status, $datetime) 
+    public function updateDeliveryStatus($orderId, $status, $datetime/*, $mobile*/) 
     {
         $order = Order::find($orderId);
         if($order != null) {
@@ -507,10 +507,30 @@ class OrderController extends Controller
                     // Update invoice_status, comment_status
                     $order->invoice_status = InvoiceStatus::NOT_ISSUED;
                     $order->comment_status = CommentStatus::NOT_COMMENTED;
+
+              //      $this->updateDistributorInventory($orderId, $mobile);
                     break;
             }
             
             $order->save();
+        }
+    }
+
+    private function updateDistributorInventory($orderId, $mobile)
+    {
+        $distributors =DistributorContact::where('mobile', $mobile)->get();
+        if($distributors && count($distributors) > 0) {
+            $distributor_id = $distributors[0]['distributor_id'];
+            $distributor_obj = Distributor::find($distributor_id);
+
+            $order = Order::find($orderId);
+            foreach ($order->products as $product) {
+                $quantity =$product->pivot->quantity;
+                $inventory = $distributor_obj->products->where('product_id', $product->id);
+
+                Log::debug('====================================');
+                Log::debug($inventory);
+            }
         }
     }
 

@@ -17,9 +17,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::resource('HomePageImages', 'HomePageImagesController');
-
-Route::get('HomePageImages/images/{position}', 'HomePageImagesController@show');
 
 /*
 |--------------------------------------------------------------------------
@@ -123,6 +120,7 @@ Route::get('front/refund/get/{orderId}', 'RefundController@showByOrderId');
 |--------------------------------------------------------------------------
 */
 Route::post('front/page/homepage/update', 'PageController@update');
+Route::delete('front/page/homepage/video/delete', 'PageController@deleteVideo');
 
 Route::post('front/page/newcomerpage/update', 'PageController@updateNewComer');
 
@@ -133,6 +131,7 @@ Route::post('front/page/newcomerpage/update', 'PageController@updateNewComer');
 */
 Route::get('front/CustomerService/message/get/{mobile}', 'MessageController@show');
 Route::get('front/CustomerService/message/checknew', 'MessageController@showNew');
+Route::get('front/CustomerService/message/update', 'MessageController@update');
 Route::get('front/CustomerService/get', 'MessageController@showByCondition');
 Route::get('front/CustomerService/get/all', 'MessageController@showAll');
 Route::get('front/CustomerService/get/newcount', 'MessageController@showAllNewCount');
@@ -173,6 +172,15 @@ Route::get('front/setting/shipping/delete/{id}', 'SettingController@destroyById'
 |--------------------------------------------------------------------------
 */
 
+
+/*
+|--------------------------------------------------------------------------
+| Routes for Home Page (APP)
+|--------------------------------------------------------------------------
+*/
+Route::resource('HomePageImages', 'HomePageImagesController');
+Route::get('HomePageImages/images/{position}', 'HomePageImagesController@show');
+Route::get('video/position/{position}', 'VideoController@showByPosition');
 
 /*
 |--------------------------------------------------------------------------
@@ -262,7 +270,7 @@ Route::get('coupon/coupons_filtered/{mobile}', 'CouponsController@showCouponsFil
 |--------------------------------------------------------------------------
 */
 Route::post('order/submit', 'OrderController@update')->middleware('appauth');
-Route::get('order/update/delivery/{orderId}/{status}/{datetime}', 'OrderController@updateDeliveryStatus')->middleware('appauth');
+Route::get('order/update/delivery/{orderId}/{status}/{datetime}/{mobile}', 'OrderController@updateDeliveryStatus')->middleware('appauth');
 Route::get('order/myorders/{mobile}/{orderStatus}', 'OrderController@showOrdersByStatus')->middleware('appauth');
 Route::get('order/myorders/{mobile}/{orderStatus}/{page}', 'OrderController@showOrdersByStatusPaged')->middleware('appauth');
 Route::delete('order/delete/id/{orderId}', 'OrderController@destroy')->middleware('appauth');

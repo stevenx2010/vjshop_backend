@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\HomePageImage;
 use App\CouponForNewComer;
+use App\Video;
 
 use Illuminate\Support\Facades\Log;
 
@@ -92,6 +93,35 @@ class PageController extends Controller
     		}
     	}
 
+        $video_clip = $request['video_clip'];
+        if($video_clip) {
+            $position = 5;
+/*
+            // delete old video file
+            $video = Video::where('position', $position)->get();
+            if($video && count($video) > 0) {
+                Log::debug($video);
+                $video_url = $video[0]->video_url;
+                $video_file_path = public_path() . '/' . $video_url;
+                if(file_exists($video_file_path)) unlink($video_file_path); 
+            }
+*/
+            // store new video;
+            $filename = 'video_clip';
+            if($request->hasFile($filename)) {
+                $file = $request->file($filename);
+                $hashName = $file->hashName();
+                $video_url = 'videos/' . $hashName;
+                $file->move(base_path('public/videos'), $hashName);
+
+                Log::debug($video_url);
+                $hpv = Video::updateOrCreate(
+                    ['position' => $position],
+                    ['video_url' => $video_url]
+                );
+            }
+        }
+
     }
 
     public function updateRecord($url, $click_url, $position, $width, $height, $sort_order)
@@ -158,5 +188,22 @@ class PageController extends Controller
     		}
     	}
 
+    }
+
+    public function deleteVideo() {
+        
+        $position = 5;
+        $video_obj = Video::where('position', $position);
+        /*
+        // delete the video file
+        $video = $video_obj->get();
+        if($video && count($video) > 0) {
+            Log::debug($video);
+            $video_url = $video[0]->video_url;
+            $video_file_path = public_path() . '/' . $video_url;
+            if(file_exists($video_file_path)) unlink($video_file_path); 
+        }   */
+        
+        $video_obj->delete(); 
     }
 }

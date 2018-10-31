@@ -72,6 +72,9 @@ Route::get('front/distributor/contact/query/{contactId}', 'DistributorController
 Route::delete('front/distributor/contact/delete/{contactId}', 'DistributorController@destroyContactById');
 Route::post('front/distributor/inventory/query', 'DistributorController@showInventoryByConditions');
 Route::post('front/distributor/product/query', 'DistributorController@showProductByConditions');
+Route::middleware('auth:api')->post('front/distributor/incharge/region/update', 'DistributorController@updateInchargeRegions');
+Route::middleware('auth:api')->get('front/distributor/incharge/region/get/{distributorId}', 'DistributorController@showInchargeRegionById');
+Route::middleware('auth:api')->post('front/distributor/incharge/region/delete', 'DistributorController@deleteInchargeRegions');
 
 /*
 |--------------------------------------------------------------------------

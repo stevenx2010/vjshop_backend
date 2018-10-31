@@ -12,6 +12,7 @@ use App\Order;
 use App\ShippingAddress;
 use App\Product;
 use App\ProductSubCategory;
+use App\DistributorInchargeRegion;
 
 use App\Libraries\Utilities\OrderStatus;
 use App\Libraries\Utilities\DeliveryStatus;
@@ -238,13 +239,32 @@ class DistributorController extends Controller
     }
 
     public function showInfoByLocation($city) {
-        $addresses = DistributorAddress::where('city', 'like', '%' . $city . '%')->where('default_address', 1)->get();
+        Log::debug($city);
+
+        $distributorInchargeRegions = DistributorInchargeRegion::where('city', 'like', '%' . $city . '%')->get();
+
+        Log::debug($distributorInchargeRegions);
+        if(count($distributorInchargeRegions) <= 0) {
+            return Response('Distributor not found at the location: ' . $city, 404);
+        }
+        /*
+        $addresses = DistributorAddress::where('city', 'like', '%' . $city . '%')->where('default_address', 1)->get();*/
+
+        $distributorId = $distributorInchargeRegions[0]->distributor_id;
+
+        $addresses = DistributorAddress::where('distributor_id', $distributorId)->get();
+        
         $addresses_array = json_decode($addresses, true);
+        
         if(sizeof($addresses_array) > 0) {
             $distributor_id = $addresses_array[0]['distributor_id'];
 
             $distributor = Distributor::find($distributor_id)->get();
             $contacts = DistributorContact::where('distributor_id', $distributor_id)->get();
+
+            if(count($contacts) <=0 ) {
+                return Response('distributor found, but has no contact!', 404);
+            }
 
             $resp = (json_decode($distributor, true))[0];
             $resp['addresses'] = $addresses;
@@ -252,7 +272,7 @@ class DistributorController extends Controller
 
             return json_encode($resp);
         } else {
-            return Response('distributor not found!', 404);
+            return Response('distributor found, but has no address!', 404);
         }
     }
 
@@ -627,5 +647,66 @@ class DistributorController extends Controller
         ];
 
         return $resp;
+    }
+
+    public function updateInchargeRegions(Request $request)
+    {
+        Log::debug($request);
+        $distributorId = $request['distributor_id'];
+        $cities = $request['regions'];
+
+        if($cities && count($cities) > 0) {
+            $duplicatedRegions = [];
+            $conflictedId = [];
+            $conflictedDistributorNames = [];
+            foreach ($cities as $city) {
+                //check duplication
+                $regions = DistributorInchargeRegion::where('city', $city)->get();
+                if($regions && count($regions) > 0) {
+                    foreach ($regions as $region) {
+                        if($region->city == $city && $region->distributor_id != $distributorId) {
+                            array_push($duplicatedRegions, $city);
+                            array_push($conflictedId, $region->distributor_id);
+                        }
+                    }
+                }
+            }
+
+            if(count($duplicatedRegions) > 0) {
+                foreach ($conflictedId as $id) {
+                    $distributor_obj = Distributor::find($id);
+                    array_push($conflictedDistributorNames, $distributor_obj->name);
+                }
+                $resp = [
+                    'names' => $conflictedDistributorNames,
+                    'regions' => $duplicatedRegions
+                ];
+                return Response($resp, 409);
+            }
+            foreach ($cities as $city) {
+                // update data
+                DistributorInchargeRegion::updateOrCreate(
+                    ['distributor_id' => $distributorId, 'city' => $city],
+                    ['distributor_id' => $distributorId, 'city' => $city]
+                );
+            }
+            
+        }
+    }
+
+    public function showInchargeRegionById($distributorId)
+    {
+        return DistributorInchargeRegion::where('distributor_id', $distributorId)->get();
+    }
+
+    public function deleteInchargeRegions(Request $request)
+    {
+        $distributorId = $request['distributor_id'];
+        $regions = $request['regions'];
+
+        foreach ($regions as $region) {
+            $city = DistributorInchargeRegion::where('distributor_id', $distributorId)->where('city', $region);
+            $city->delete();
+        }
     }
 }

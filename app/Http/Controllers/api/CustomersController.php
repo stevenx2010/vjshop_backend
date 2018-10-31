@@ -145,7 +145,7 @@ class CustomersController extends Controller
                 $response['text'] = 'New user: logged in, user info saved';
 
                 // associate coupons for newuser to this user
-                $coupons = Coupon::where('for_new_user', true)->where('expired', false)->where('quantity_available', -1)->orWhere('quantity_available', '>', 0)->get();
+                $coupons = Coupon::where('for_new_comer', true)->where('expired', false)->where('quantity_available', -1)->orWhere('quantity_available', '>', 0)->get();
                 if($coupons && count($coupons) > 0) {
                   foreach ($coupons as $coupon) {
                     $coupon_id = $coupon['id'];

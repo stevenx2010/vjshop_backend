@@ -1,5 +1,5 @@
 <?php
-// commands
+// commands 
 define('GET_SMS_CODE', 0);
 define('CONFIRM_SMS_CODE', 1);
 define('CREATE_SHIPPING_ADDRESS', 2);

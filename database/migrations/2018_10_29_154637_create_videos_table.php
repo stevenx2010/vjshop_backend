@@ -20,6 +20,7 @@ class CreateVideosTable extends Migration
             $table->smallInteger('position')->default(0);
             $table->smallInteger('width')->nullable();
             $table->smallInteger('height')->nullable();
+            $table->string('poster_url');
             $table->smallInteger('sort_order')->default(999);
             $table->timestamps();
         });

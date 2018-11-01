@@ -19,6 +19,8 @@ class PageController extends Controller
     	$num_top_images = $request['num_top_images'];
     	$num_bottom_images = $request['num_bottom_images'];
 
+        $sort_order = 10;
+
     	if($num_top_images > 0) {
     		$position = 1;
 
@@ -94,6 +96,8 @@ class PageController extends Controller
     	}
 
         $video_clip = $request['video_clip'];
+        $poster_image = $request['poster_image'];
+
         if($video_clip) {
             $position = 5;
 /*
@@ -108,16 +112,22 @@ class PageController extends Controller
 */
             // store new video;
             $filename = 'video_clip';
-            if($request->hasFile($filename)) {
+            $filename_poster = 'poster_image';
+            if($request->hasFile($filename) && $request->hasFile($filename_poster)) {
                 $file = $request->file($filename);
                 $hashName = $file->hashName();
                 $video_url = 'videos/' . $hashName;
                 $file->move(base_path('public/videos'), $hashName);
 
+                $file_poster = $request->file($filename_poster);
+                $hasName_poster = $file_poster->hashName();
+                $poster_url = 'videos/' . $hasName_poster;
+                $file_poster->move(base_path('public/videos'), $hasName_poster);
+
                 Log::debug($video_url);
                 $hpv = Video::updateOrCreate(
                     ['position' => $position],
-                    ['video_url' => $video_url]
+                    ['video_url' => $video_url, 'poster_url' => $poster_url]
                 );
             }
         }

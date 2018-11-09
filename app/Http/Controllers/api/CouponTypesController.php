@@ -51,7 +51,7 @@ class CouponTypesController extends Controller
     public function show()
     {
         $final_resp = [];
-        $couponTypes = CouponType::all();
+        $couponTypes = CouponType::where('type', 'like', '%')->orderBy('sort_order')->get();
         $coupon_type_array = json_decode($couponTypes, true);
 
         foreach ($coupon_type_array as $t) {

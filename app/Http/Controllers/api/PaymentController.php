@@ -80,9 +80,9 @@ class PaymentController extends Controller
                 return Response($response, 200)->header('Content-type', 'application/json');
 
             } else $response = 'FAIL_TRADE';
-        } else $response = 'FAIL_SIGN_MISMATCH';
+        } else $response = 'FAIL_ALIPAY_SIGN_MISMATCH';
 
-        $this->doLog(LogType::PAYMENT_ALIPAY_OUT, $order_serial, $response);
+        $this->doLog(LogType::PAYMENT_ALIPAY_OUT, $request['out_trade_no'], $response);
         return Response($response, 200)->header('Content-type', 'application/json');
     }
 

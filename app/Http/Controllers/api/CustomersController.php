@@ -150,7 +150,7 @@ class CustomersController extends Controller
                   foreach ($coupons as $coupon) {
                     $coupon_id = $coupon['id'];
                     $newUser->coupons()->attach(
-                      [$coupn_id => ['quantity' => 1]]
+                      [$coupon_id => ['quantity' => 1]]
                     );
                   }
                 }

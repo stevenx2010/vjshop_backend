@@ -257,10 +257,10 @@ class DistributorController extends Controller
         $addresses_array = json_decode($addresses, true);
         
         if(sizeof($addresses_array) > 0) {
-            $distributor_id = $addresses_array[0]['distributor_id'];
+         //   $distributor_id = $addresses_array[0]['distributor_id'];
 
-            $distributor = Distributor::find($distributor_id)->get();
-            $contacts = DistributorContact::where('distributor_id', $distributor_id)->get();
+            $distributor = Distributor::where('id', $distributorId)->get();
+            $contacts = DistributorContact::where('distributor_id', $distributorId)->get();
 
             if(count($contacts) <=0 ) {
                 return Response('distributor found, but has no contact!', 404);
@@ -270,6 +270,7 @@ class DistributorController extends Controller
             $resp['addresses'] = $addresses;
             $resp['contacts'] = $contacts;
 
+            Log::debug($resp);
             return json_encode($resp);
         } else {
             return Response('distributor found, but has no address!', 404);

@@ -201,6 +201,7 @@ Route::get('product/productSubCategories/{categoryId}', 'ProductsController@show
 
 // Get products of a category
 Route::get('product/products/{productCategoryId}', 'ProductsController@showProducts')->middleware('appauth');
+Route::get('product/products/v2/{productCategoryId}', 'ProductsController@showProductsV2')->middleware('appauth');
 
 // Get product detail info by product id
 Route::get('product/detail/{productId}', 'ProductsController@show')->middleware('appauth');

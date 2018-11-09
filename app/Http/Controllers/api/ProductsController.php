@@ -79,6 +79,29 @@ class ProductsController extends Controller
         return ProductCategory::find($productCategoryId)->products()->select('products.id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url')->orderBy('product_sub_category_id')->orderBy('products.id')->get();
     }
 
+    public function showProductsV2($productCategoryId)
+    {
+        $sub_categories = ProductCategory::find($productCategoryId)->productSubCategories()->orderBy('product_sub_categories.sort_order')->get();
+        
+        $resp = [];
+        foreach($sub_categories as $subcat){
+            
+            $subcat_obj = ProductSubCategory::find($subcat['id']);
+            $products = $subcat_obj->products()->orderBy('products.sort_order')->get();
+
+            Log::debug($products);
+
+            $productBySubCategory = new ProductBySubCategory();
+
+            $productBySubCategory->subCategory = (ProductSubCategory::where('id', $subcat['id'])->get())[0];
+            $productBySubCategory->products = $products;
+
+            array_push($resp, $productBySubCategory);
+        }
+
+        return json_encode($resp);
+    }
+
     public function showProductSearched($keyword) 
     {
         return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'thumbnail_url')->where('name', 'LIKE', "%{$keyword}%")->get();
@@ -216,10 +239,13 @@ class ProductsController extends Controller
 
         // Step 1: fill product info uploaded
         // 1) get the last sort order number
-        $temp = Product::select('sort_order')->orderBy('sort_order', 'desc')->take(1)->get();
-        $sort_order = ((json_decode($temp, true))[0])['sort_order'];
-        if($sort_order == 999) $sort_order += 10;     
-
+        $sort_order = $request['sort_order'];
+        if($sort_order == null || $sort_order == 999) {
+            $temp = Product::select('sort_order')->orderBy('sort_order', 'desc')->take(1)->get();
+            $sort_order = ((json_decode($temp, true))[0])['sort_order'];
+            $sort_order += 10;  
+        }
+   
         // 2) create thumbnail image url
         $thumbnail_url = $request['thumbnail_url'];
         if($request->hasFile('thumbnail') ) {
@@ -359,4 +385,9 @@ class ProductsController extends Controller
 
         return respnse('deleted', 200);
     }
+}
+
+class ProductBySubCategory {
+    public $subCategory;
+    public $products;
 }

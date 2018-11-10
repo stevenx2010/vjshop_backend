@@ -62,11 +62,23 @@ class MessageController extends Controller
 
     public function updateQnA(Request $request)
     {
+        $id = $request['id'];
+        $question = $request['question'];
+        $answer = $request['answer'];
+
+        QuestionAndAnswer::updateOrCreate(
+            ['id' => $id],
+            [
+                'question' => $question,
+                'answer' => $answer
+            ]
+        );
+        /*
         $qna = new QuestionAndAnswer();
         $qna->question = $request['question'];
         $qna->answer = $request['answer'];
 
-        $qna->save();
+        $qna->save();*/
     }
 
     public function destroyQnA($id)

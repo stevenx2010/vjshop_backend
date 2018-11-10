@@ -134,7 +134,7 @@ Route::post('front/page/newcomerpage/update', 'PageController@updateNewComer');
 */
 Route::get('front/CustomerService/message/get/{mobile}', 'MessageController@show');
 Route::get('front/CustomerService/message/checknew', 'MessageController@showNew');
-Route::get('front/CustomerService/message/update', 'MessageController@update');
+Route::post('front/CustomerService/message/update', 'MessageController@update');
 Route::get('front/CustomerService/get', 'MessageController@showByCondition');
 Route::get('front/CustomerService/get/all', 'MessageController@showAll');
 Route::get('front/CustomerService/get/newcount', 'MessageController@showAllNewCount');

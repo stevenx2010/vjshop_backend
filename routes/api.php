@@ -274,7 +274,7 @@ Route::get('coupon/coupons_filtered/{mobile}', 'CouponsController@showCouponsFil
 |--------------------------------------------------------------------------
 */
 Route::post('order/submit', 'OrderController@update')->middleware('appauth');
-Route::get('order/update/delivery/{orderId}/{status}/{datetime}/{mobile}', 'OrderController@updateDeliveryStatus')->middleware('appauth');
+Route::get('order/update/delivery/{orderId}/{status}/{datetime}', 'OrderController@updateDeliveryStatus')->middleware('appauth');
 Route::get('order/myorders/{mobile}/{orderStatus}', 'OrderController@showOrdersByStatus')->middleware('appauth');
 Route::get('order/myorders/{mobile}/{orderStatus}/{page}', 'OrderController@showOrdersByStatusPaged')->middleware('appauth');
 Route::delete('order/delete/id/{orderId}', 'OrderController@destroy')->middleware('appauth');

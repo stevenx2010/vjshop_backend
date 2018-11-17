@@ -56,11 +56,17 @@ class DistributorController extends Controller
 
                     if($current_inventory + $request['inventory'] <= 0) {
                         $distributor->products()->detach($request['product_id']);
+                        $product['inventory'] += $current_inventory;
+                        $product->save();
                     } else {
                         $distributor->products()->detach($request['product_id']);
                         $distributor->products()->attach([
                             $request['product_id'] => ['inventory' => $current_inventory + $request['inventory']]
                         ]);
+
+                        $product->inventory = $product['inventory'] - $request['inventory'];
+                        $product->save();
+
                     }
 
                     break;
@@ -71,6 +77,8 @@ class DistributorController extends Controller
                 $distributor->products()->attach([
                    $request['product_id'] => ['inventory' => $request['inventory']]
                 ]);
+                $product->inventory = $product['inventory'] - $request['inventory'];
+                        $product->save();
             }
         }
     } 

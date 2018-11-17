@@ -37,6 +37,7 @@ class CreateOrdersTable extends Migration
             $table->tinyInteger('invoice_type');    //1: persona;   2: enterprise
             $table->string('invoice_head', 255)->nullable();
             $table->string('invoice_tax_number')->nullable();
+            $table->string('email')->nullable();
             $table->tinyInteger('refund_status')->default(-1); //-1: NA; 1: appliction for refunding; 2: wait for refunding; 3: refunded
             $table->timestamps();
         });

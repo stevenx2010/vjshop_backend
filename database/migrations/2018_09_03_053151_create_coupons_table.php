@@ -26,6 +26,7 @@ class CreateCouponsTable extends Migration
             $table->double('discount_value')->default(0);
             $table->integer('quantity_initial')->default(-1);
             $table->integer('quantity_available')->default(-1);
+            $table->decimal('min_purchased_amount')->default(0.00);
             $table->string('image_url');
             $table->boolean('for_new_comer')->default(false);
             $table->timestamps();

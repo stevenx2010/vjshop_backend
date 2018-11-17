@@ -552,6 +552,21 @@ class OrderController extends Controller
         Log::debug($id);
         $order = Order::find($id);
         if($order) {
+            // return coupon used in this order to the user
+            $customer_id = $order->customer_id;
+            $customer_obj = Customer::find($customer_id);
+
+            foreach($order->coupons as $coupon) {
+                Log::debug($coupon);
+                $coupon_id = $coupon['id'];
+                Log::debug($coupon_id);
+                if($customer_obj->coupons->contains($coupon)) {
+                    $customer_obj->coupons()->updateExistingPivot($coupon_id, ['quantity' => 1]);
+                } else {
+                    $customer_obj->coupons()->attach([$coupon_id => ['quantity' => 1]]);
+                }
+            }
+
             $order->delete();  
             return Response('deleted', 200);
         } else {

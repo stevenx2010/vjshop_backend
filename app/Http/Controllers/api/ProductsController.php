@@ -22,7 +22,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        return Product::select('id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url', 'price', 'sold_amount', 'weight')->get();
+        return Product::select('id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url', 'price', 'sold_amount', 'weight')->where('off_shelf', 0)->get();
     }
 
     /**
@@ -87,7 +87,7 @@ class ProductsController extends Controller
         foreach($sub_categories as $subcat){
             
             $subcat_obj = ProductSubCategory::find($subcat['id']);
-            $products = $subcat_obj->products()->orderBy('products.sort_order')->get();
+            $products = $subcat_obj->products()->where('products.off_shelf', 0)->orderBy('products.sort_order')->get();
 
             Log::debug($products);
 
@@ -104,7 +104,7 @@ class ProductsController extends Controller
 
     public function showProductSearched($keyword) 
     {
-        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'thumbnail_url')->where('name', 'LIKE', "%{$keyword}%")->get();
+        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'thumbnail_url')->where('name', 'LIKE', "%{$keyword}%")->where('off_shelf', 0)->get();
     }
 
     public function showProductsByIds(Request $request)
@@ -278,7 +278,8 @@ class ProductsController extends Controller
              'brand' => $request['brand'],
              'inventory' => $request['inventory'],
              'sort_order' => $sort_order,
-             'thumbnail_url' => $thumbnail_url
+             'thumbnail_url' => $thumbnail_url,
+             'off_shelf' => $request['off_shelf'],
             ]    
         );
 

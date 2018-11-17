@@ -52,7 +52,7 @@ class CouponsController extends Controller
      */
     public function show($id)
     {
-        return Coupon::select('id', 'name', 'description', 'coupon_type_id', 'expire_date', 'expired', 'discount_method', 'discount_percentage', 'discount_value', 'quantity_initial', 'quantity_available', 'image_url')->where('coupon_type_id', $id)->where('expired', false)->get();
+        return Coupon::select('id', 'name', 'description', 'coupon_type_id', 'expire_date', 'expired', 'discount_method', 'discount_percentage', 'discount_value', 'quantity_initial', 'quantity_available', 'image_url', 'min_purchased_amount')->where('coupon_type_id', $id)->where('expired', false)->get();
     }
 
     public function showNewComer() {
@@ -70,7 +70,7 @@ class CouponsController extends Controller
     {
         $id = Customer::select('id')->where('mobile', $mobile)->get();
 
-        return \DB::select('select id, name, description, coupon_type_id, expire_date, expired, discount_method, discount_percentage, discount_value, quantity_initial, quantity_available, image_url from coupons c left join (select * from coupon_customer where customer_id = ?) d on c.id=d.coupon_id where d.coupon_id is null', [$id[0]->id]);
+        return \DB::select('select id, name, description, coupon_type_id, expire_date, expired, discount_method, discount_percentage, discount_value, quantity_initial, quantity_available, image_url, min_purchased_amount from coupons c left join (select * from coupon_customer where customer_id = ?) d on c.id=d.coupon_id where d.coupon_id is null', [$id[0]->id]);
     }
 
     public function showCoupons(Request $request) {
@@ -137,6 +137,12 @@ class CouponsController extends Controller
             return response('duplicate', 200);
         } else {
             $user->coupons()->attach([$coupon_id => ['quantity' => 1]]);
+
+            // decrease the coupon quantity
+            if($coupon->quantity_available > 0) {
+                $coupon->quantity_available -= 1;
+                $coupon->save();
+            }
         }
 
     }
@@ -180,6 +186,7 @@ class CouponsController extends Controller
                 'quantity_initial' => $request['quantity_initial'],
                 'quantity_available' => $request['quantity_initial'],
                 'for_new_comer' => $for_new_comer,
+                'min_purchased_amount' => $request['min_purchased_amount'],
                 'image_url' => $image_url
             ]
         );

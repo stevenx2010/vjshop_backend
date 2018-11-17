@@ -145,7 +145,8 @@ class CustomersController extends Controller
                 $response['text'] = 'New user: logged in, user info saved';
 
                 // associate coupons for newuser to this user
-                $coupons = Coupon::where('for_new_comer', true)->where('expired', false)->where('quantity_available', -1)->orWhere('quantity_available', '>', 0)->get();
+                // step 1: check unlimited coupons
+                $coupons = Coupon::where('for_new_comer', 1)->where('expired', 0)->where('quantity_available', -1)->get();
                 if($coupons && count($coupons) > 0) {
                   foreach ($coupons as $coupon) {
                     $coupon_id = $coupon['id'];
@@ -154,6 +155,26 @@ class CustomersController extends Controller
                     );
                   }
                 }
+
+                // step 2: check coupon whose quantity > 0
+                $coupons = Coupon::where('for_new_comer', 1)->where('expired', 0)->Where('quantity_available', '>', 0)->get();
+                if($coupons && count($coupons) > 0) {
+                  foreach ($coupons as $coupon) {
+                    $coupon_id = $coupon['id'];
+                    $newUser->coupons()->attach(
+                      [$coupon_id => ['quantity' => 1]]
+                    );
+
+                    // decrease this coupon's quantity
+                    $coupon_obj = Coupon::find($coupon_id);
+                    $coupon_obj->quantity_available -= 1;
+                    $coupon_obj->save();
+                  }
+                }
+
+                // set the user as old user
+                $newUser->new_user = false;
+                $newUser->save();
             } else {
                 // old user, check if access token expired
                 if(!($this->checkToken($request['mobile']))) { 

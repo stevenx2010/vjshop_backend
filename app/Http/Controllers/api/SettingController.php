@@ -21,8 +21,10 @@ class SettingController extends Controller
     {
     	Log::debug($request);
 
+        $id = $request['id'];
+
     	$setting = Setting::updateOrCreate(
-    		['id' => $request['id']],
+    		['id' => $id],
     		[
     			'type' => $request['type'],
     			'description' => $request['description'],

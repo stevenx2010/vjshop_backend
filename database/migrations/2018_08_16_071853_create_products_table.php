@@ -29,6 +29,7 @@ class CreateProductsTable extends Migration
             $table->integer('inventory')->unsigned();
             $table->string('thumbnail_url', 255);
             $table->integer('sold_amount')->unsiged()->nullable()->default(0);
+            $table->boolean('off_shelf')->default(false);
             $table->integer('sort_order')->unsigne();
             $table->timestamps();
         });

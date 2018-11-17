@@ -351,6 +351,7 @@ class OrderController extends Controller
                     'invoice_status' => $request['invoice_status'],
                     'invoice_head' =>$request['invoice_head'],
                     'invoice_tax_number' => $request['invoice_tax_number'],
+                    'email' => $request['email'],
                     'invoice_type' => $request['invoice_type']
                     ]
                 );
@@ -555,6 +556,7 @@ class OrderController extends Controller
             // return coupon used in this order to the user
             $customer_id = $order->customer_id;
             $customer_obj = Customer::find($customer_id);
+            $coupons = $order->coupons()->get();
 
             foreach($order->coupons as $coupon) {
                 Log::debug($coupon);
@@ -568,7 +570,8 @@ class OrderController extends Controller
             }
 
             $order->delete();  
-            return Response('deleted', 200);
+
+            return Response($coupons, 200);
         } else {
             return Response('id not found (delete)', 400);
         }   

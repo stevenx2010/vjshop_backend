@@ -25,6 +25,7 @@ class Order extends Model
 							'invoice_status',
 							'invoice_head',
 							'invoice_tax_number',
+							'email',
 							'invoice_type'
 						  ];
 

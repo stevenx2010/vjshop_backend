@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
         $this->call('QuestionAndAnswersTableSeeder');
         $this->call('SettingsTableSeeder');
         $this->call('UsersTableSeeder');
+        $this->call('AboutsTableSeeder');
+        $this->call('AboutImagesTableSeeder');
         
     }
 }

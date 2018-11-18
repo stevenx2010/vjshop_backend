@@ -126,6 +126,6 @@ class HomePageImagesTableSeeder extends Seeder
             'width' => 950,
             'height' => 834,
             'sort_order' => 8
-        ]);
+        ]);      
     }
 }

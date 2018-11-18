@@ -168,6 +168,10 @@ class OrderController extends Controller
                 $resp['products'] = $shoppingItems;
             }
 
+            // Get coupons used
+            $coupons = $order->coupons()->get();
+            $resp['coupons'] = $coupons;
+
             array_push($final_resp, $resp);
         }
         return $final_resp;
@@ -284,6 +288,8 @@ class OrderController extends Controller
         $distributor_address = DistributorAddress::where('distributor_id', $order->distributor_id)->where('default_address', 1)->get();
         $distibutor_contact = DistributorContact::where('distributor_id', $order->distributor_id)->where('default_contact', 1)->get();
 
+        $coupons = $order->coupons()->get();
+
         $resp = [];
 
         if($order->invoice_status == InvoiceStatus::ISSUED) {
@@ -297,6 +303,7 @@ class OrderController extends Controller
         $resp['distributor'] = $distributor;
         $resp['distributor_contact'] = $distibutor_contact;
         $resp['distributor_address'] = $distributor_address;
+        $resp['coupons'] = $coupons;
 
         return $resp;
     }
@@ -347,7 +354,7 @@ class OrderController extends Controller
                     'payment_method' => $request['payment_method'],
                     'shipping_address_id' => $request['shipping_address']['id'],
                     'order_status' => $request['order_status'],
-                    'is_invoice_required'=> $request['is_invoice_required'],
+                    'is_invoice_required'=> $request['is_invoice_required'] ? 1 : 0,
                     'invoice_status' => $request['invoice_status'],
                     'invoice_head' =>$request['invoice_head'],
                     'invoice_tax_number' => $request['invoice_tax_number'],
@@ -556,7 +563,6 @@ class OrderController extends Controller
             // return coupon used in this order to the user
             $customer_id = $order->customer_id;
             $customer_obj = Customer::find($customer_id);
-            $coupons = $order->coupons()->get();
 
             foreach($order->coupons as $coupon) {
                 Log::debug($coupon);
@@ -570,6 +576,9 @@ class OrderController extends Controller
             }
 
             $order->delete();  
+
+            // send back customer's all coupons
+            $coupons = $customer_obj->coupons()->get();
 
             return Response($coupons, 200);
         } else {

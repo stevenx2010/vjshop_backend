@@ -165,8 +165,12 @@ Route::get('front/setting/shipping/get/all', 'SettingController@showShippingAll'
 Route::post('front/setting/shipping/update', 'SettingController@updateOrCreateShipping');
 Route::get('front/setting/shipping/delete/{id}', 'SettingController@destroyById');
 
-
-
+/*
+|--------------------------------------------------------------------------
+| About Page Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::post('front/about/page/update', 'AboutController@update');
 
 
 /*
@@ -324,3 +328,11 @@ Route::get('CustomerService/qna/get', 'MessageController@showQnA')->middleware('
 |--------------------------------------------------------------------------
 */
 Route::get('setting/shipping/formula/{weight}', 'SettingController@showFormula')->middleware('appauth');
+
+/*
+|--------------------------------------------------------------------------
+| About Page Related Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('about/page/info', 'AboutController@show')->middleware('appauth');

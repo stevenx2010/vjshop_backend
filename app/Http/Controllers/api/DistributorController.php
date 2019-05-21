@@ -120,7 +120,7 @@ class DistributorController extends Controller
         $distributorContacts = DistributorContact::where('mobile', $mobile)->get();
         if($distributorContacts == null) return Response('mobile not found', 404);
 
-        $distributor = Distributor::find($distributorContacts[0]['id']);
+        $distributor = Distributor::find($distributorContacts[0]['distributor_id']);
 
         $orders = $distributor->orders()->orderBy('created_at', 'DESC')->get();
         Log::debug($orders);
@@ -226,7 +226,7 @@ class DistributorController extends Controller
 
         if($contacts == null) return Response('mobile not found', 404);
 
-        $id = (json_decode($contacts[0], true))['id'];
+        $id = $contacts[0]->distributor_id;
 
         $distributor = Distributor::find($id);
 

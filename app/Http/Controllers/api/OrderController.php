@@ -517,6 +517,24 @@ class OrderController extends Controller
                     $order->comment_status = CommentStatus::NOT_COMMENTED;
 
               //      $this->updateDistributorInventory($orderId, $mobile);
+                    // update distributor inventoy
+              //    2019-5-16
+                    $distributor_id = $order->distributor_id;
+                    $distributor = Distributor::find($distributor_id);
+
+                    foreach($order->products()->get() as $product) {
+                        $product_id = $product->pivot->product_id;
+                        $quantity = $product->pivot->quantity;
+                        foreach($distributor->products()->get() as $dis_product) {
+                            if($dis_product->pivot->product_id == $product_id) {
+                                $new_inventory = $dis_product->pivot->inventory - $quantity;
+                                if($new_inventory < 0) $new_inventory =0;
+                                $distributor->products()->updateExistingPivot($product_id, ['inventory' => $new_inventory]);
+                            }
+                        }
+
+                    }
+
                     break;
             }
             

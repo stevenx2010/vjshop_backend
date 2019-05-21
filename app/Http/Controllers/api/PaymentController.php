@@ -186,5 +186,4 @@ class PaymentController extends Controller
             $pdt_obj->save();
         }
     }
-
 }

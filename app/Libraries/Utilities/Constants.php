@@ -39,3 +39,4 @@ abstract class RefundStatus {
 	const WAITING_FOR_REFUND = 2;
 	const REFUNDED = 3;
 }
+

@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 use \Cache;
 
@@ -16,6 +17,7 @@ use Lcobucci\JWT\ValidationData;
 use Lcobucci\JWT\Parser;
 
 use App\Customer;
+use App\CustomerProfile;
 use App\ShippingAddress;
 use App\Coupon;
 
@@ -64,31 +66,47 @@ class CustomersController extends Controller
     // Helpers
     
     public function sendSMSCode($request) {
-        // step 1: Generate a random number, then send SMS to sms_api & get status
-        $rand_number = mt_rand(100000, 999999);
-        /********************for debug ********** remove it afterwards ***********/
-        $rand_number = 123456;
-        $smsRequest = new SmsRequest($request['mobile'], $rand_number);
+      // step 0: Check if he/she is a new user
+      $user = Customer::select('id')->where('mobile', trim($request['mobile']))->get();
+      $isNewUser = false;
 
-        $smsResponse = new SmsResponse();
-        $smsResponse = $smsRequest->send();
+      if($user && count($user) == 0) {
+        $isNewUser = true;
+      }
 
-        Log::debug(json_decode($smsResponse, true));
-      
-        $resp =json_decode($smsResponse, true);
+      // step 1: Generate a random number, then send SMS to sms_api & get status
+      $rand_number = mt_rand(100000, 999999);
+      /********************for debug ********** remove it afterwards ***********/
+      $rand_number = 123456;
+      $smsRequest = new SmsRequest($request['mobile'], $rand_number);
 
-        if($resp['code'] ==='000000') $smsSendStatus = SEND_SMS_CODE_SUCCESS;
-        else $smsSendStatus = SEND_SMS_CODE_FAILURE;
+      $smsResponse = new SmsResponse();
+      $smsResponse = $smsRequest->send();
 
-        // step 3: send SMS sending status back to user
-        if($smsSendStatus == SEND_SMS_CODE_SUCCESS) {
-            // store the the sms in memcached temporarily 
-            Cache::put($request['mobile'], $rand_number, 1);  // expires after 1 minute;
-            // response result to customer
-            return response(json_encode(['status'=> $smsSendStatus, 'mobile'=> $request['mobile']]), 200)->header('Content-type', 'application/json');
-        } else {
-            return response(json_encode(['status' => $resp['code'], 'text' => $resp['msg']]), 200)->header('Content-type', 'application/json');
-        }
+      Log::debug(json_decode($smsResponse, true));
+    
+      $resp =json_decode($smsResponse, true);
+
+      if($resp['code'] ==='000000') $smsSendStatus = SEND_SMS_CODE_SUCCESS;
+      else $smsSendStatus = SEND_SMS_CODE_FAILURE;
+
+      // step 3: send SMS sending status back to user
+      if($smsSendStatus == SEND_SMS_CODE_SUCCESS) {
+          // store the the sms in memcached temporarily 
+          Cache::put($request['mobile'], $rand_number, 1);  // expires after 1 minute;
+          // response result to customer
+          return response(json_encode([
+            'status'=> $smsSendStatus, 
+            'mobile'=> $request['mobile'],
+            'newuser' => $isNewUser
+          ]), 200)->header('Content-type', 'application/json');
+      } else {
+          return response(json_encode([
+            'status' => $resp['code'], 
+            'text' => $resp['msg'],
+            'newuser' => $isNewUser
+          ]), 200)->header('Content-type', 'application/json');
+      }
     }
 
     public function authCustomer($request) {
@@ -139,7 +157,20 @@ class CustomersController extends Controller
                 $newUser->mobile = $request['mobile'];
                 $newUser->access_token = '' . $access_token;  // convert to string
                 $newUser->new_user =true;
-                $newUser->save();
+                //$newUser->save();
+
+                // store user profile
+                $user_profile = new CustomerProfile;
+                $user_profile->customer_id = $newUser->id;
+                $user_profile->register_location = $request['location'];
+                //$user_profile->save();
+
+
+                DB::transaction(function() use ($newUser, $user_profile) {
+                  $newUser->save();
+                  $user_profile->customer_id = $newUser->id;
+                  $user_profile->save();
+                }, 5);
 
                 $response['new_user'] = true;
                 $response['text'] = 'New user: logged in, user info saved';
@@ -316,6 +347,41 @@ class CustomersController extends Controller
     public function show($id)
     {
         //
+    }
+
+    public function showProfile(Request $request)
+    {
+      \Log::debug($request);
+      $mobile = $request['mobile'];
+      $query_by_date = $request['query_by_date'];
+      $date1 = $request['date1'];
+      $date2 = $request['date2'];
+
+      if(!$mobile && !$query_by_date) {
+        return DB::table('customers')->join('customer_profiles', 'customers.id', '=', 'customer_profiles.customer_id')
+                                     ->select('customers.id', 'customers.mobile', 'customers.created_at as register_date', 'customer_profiles.register_location')
+                                     ->get();
+      } else if($mobile && !$query_by_date) {
+        return DB::table('customers')->join('customer_profiles', 'customers.id', '=', 'customer_profiles.customer_id')
+                                     ->select('customers.id', 'customers.mobile', 'customers.created_at as register_date', 'customer_profiles.register_location')
+                                     ->where('customers.mobile', $mobile)
+                                     ->get();  
+      } else if($query_by_date && !$mobile) {
+        return DB::table('customers')->join('customer_profiles', 'customers.id', '=', 'customer_profiles.customer_id')
+                                     ->select('customers.id', 'customers.mobile', 'customers.created_at as register_date', 'customer_profiles.register_location')
+                                     ->where('customers.created_at', '>=', $date1)
+                                     ->where('customers.created_at', '<=', $date2)
+                                     ->get();  
+      } else if($query_by_date && $mobile) {
+        return DB::table('customers')->join('customer_profiles', 'customers.id', '=', 'customer_profiles.customer_id')
+                                     ->select('customers.id', 'customers.mobile', 'customers.created_at as register_date', 'customer_profiles.register_location')
+                                     ->where('customers.created_at', '>=', $date1)
+                                     ->where('customers.created_at', '<=', $date2)
+                                     ->where('customers.mobile', $mobile)
+                                     ->get();  
+      }
+
+      return response(json_encode([]), 200);
     }
 
     public function showExist($mobile) 

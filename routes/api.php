@@ -100,7 +100,8 @@ Route::delete('front/coupon/delete/id/{couponId}', 'CouponsController@destroyByI
 Route::post('front/order/query/conditions', 'OrderController@showByConditions');
 Route::get('front/order/query/detail/id/{id}', 'OrderController@showDetailByOrderId');
 Route::post('front/order/query/conditions/distributor', 'OrderController@showByConditionsForDistributor');
-
+Route::post('front/order/change/price', 'OrderController@updatePrice');
+Route::post('front/order/price/change/history', 'OrderController@queryPriceChangeHistory');
 
 /*
 |--------------------------------------------------------------------------
@@ -119,13 +120,16 @@ Route::get('front/refund/get/{orderId}', 'RefundController@showByOrderId');
 
 /*
 |--------------------------------------------------------------------------
-| Home Page / Newcomer Page Routes for Front End 
+| Home Page / Newcomer Page / Agreement Page Routes for Front End 
 |--------------------------------------------------------------------------
 */
 Route::post('front/page/homepage/update', 'PageController@update');
 Route::delete('front/page/homepage/video/delete', 'PageController@deleteVideo');
 
 Route::post('front/page/newcomerpage/update', 'PageController@updateNewComer');
+
+Route::get('front/page/get/agreement', 'AgreementController@show');
+Route::post('front/page/agreement/update', 'AgreementController@update');
 
 /*
 |--------------------------------------------------------------------------
@@ -142,6 +146,13 @@ Route::get('front/CustomerService/qna/get', 'MessageController@showQnA');
 Route::post('front/CustomerService/qna/update', 'MessageController@updateQnA');
 Route::get('front/CustomerService/qna/delete/{id}', 'MessageController@destroyQnA');
 Route::get('front/CustomerService/qna/get/id/{id}', 'MessageController@getQnAById');
+
+/*
+|--------------------------------------------------------------------------
+| Customer Management Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::post('front/CustomerManage/profile', 'CustomersController@showProfile');
 
 /*
 |--------------------------------------------------------------------------
@@ -219,7 +230,7 @@ Route::get('product/search/{keyword}', 'ProductsController@showProductSearched')
 // Get products by ids
 Route::post('product/products/ids', 'ProductsController@showProductsByIds')->middleware('appauth');
 
-
+Route::post('product/filtered', 'ProductsController@showProductsFiltered')->middleware('appauth');
 
 /*
 |--------------------------------------------------------------------------
@@ -239,6 +250,7 @@ Route::get('address/default/{mobile}', 'ShippingAddressController@showDefault')-
 Route::get('address/userid/{mobile}', 'ShippingAddressController@showUserId')->middleware('appauth');
 Route::delete('address/id/{addressId}', 'ShippingAddressController@destroy')->middleware('appauth');
 Route::get('address/query/id/{addressId}', 'ShippingAddressController@showShippingAddressById')->middleware('appauth');
+Route::get('address/setdefault/id/{addressid}', 'ShippingAddressController@updateAddressAsDefault')->middleware('appauth');
 
 
 /*
@@ -336,3 +348,11 @@ Route::get('setting/shipping/formula/{weight}', 'SettingController@showFormula')
 */
 
 Route::get('about/page/info', 'AboutController@show')->middleware('appauth');
+
+/*
+|--------------------------------------------------------------------------
+| Agreement Page Related Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('agreement/page/info', 'AgreementController@show')->middleware('appauth');

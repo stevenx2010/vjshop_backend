@@ -30,6 +30,6 @@ class DatabaseSeeder extends Seeder
         $this->call('UsersTableSeeder');
         $this->call('AboutsTableSeeder');
         $this->call('AboutImagesTableSeeder');
-        
+        $this->call('AgreementsTableSeeder');
     }
 }

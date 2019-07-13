@@ -204,7 +204,7 @@ class DistributorController extends Controller
 
         $distributor = Distributor::find($id);
 
-        return $products = $distributor->products()->get();         
+        return $products = $distributor->products()->where('off_shelf', 0)->get();         
     }
 
     public function showInfo($keyword)
@@ -217,7 +217,7 @@ class DistributorController extends Controller
 
     public function showInventory($distributorId)
     {
-        return Distributor::find($distributorId)->products()->get();
+        return Distributor::find($distributorId)->products()->where('off_shelf', 0)->get();
     }
 
     public function showInfoByMobile($mobile)
@@ -375,7 +375,7 @@ class DistributorController extends Controller
             if($keyword == null || ($keyword && strlen($keyword) ==0)){     // c ==  null
                 return Distributor::find($distributorId)->products()->get();
             } else {    // c != null
-                return Distributor::find($distributorId)->products()->where('products.name', 'like', '%' . $keyword . '%')->get();
+                return Distributor::find($distributorId)->products()->where('products.name', 'like', '%' . $keyword . '%')->where('off_shelf', 0)->get();
             }
         } else {    // a!= 0
             if($subCategoryId == 0) {   // b == 0
@@ -385,7 +385,7 @@ class DistributorController extends Controller
 
                     $resp = [];
                     foreach ($subCategories as $subCat) {
-                        $products = Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCat['id'])->get();
+                        $products = Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCat['id'])->where('off_shelf', 0)->get();
                         Log::debug($products);
                         foreach($products as $p) {
                             array_push($resp, $p);
@@ -399,7 +399,7 @@ class DistributorController extends Controller
 
                     $resp = [];
                     foreach ($subCategories_array as $subCat) {
-                        $products = Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCat['id'])->where('products.name', 'like', '%' . $keyword . '%')->get();
+                        $products = Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCat['id'])->where('products.name', 'like', '%' . $keyword . '%')->where('off_shelf', 0)->get();
 
                         foreach($products as $p) {
                             array_push($resp, $p);
@@ -410,9 +410,9 @@ class DistributorController extends Controller
                 }
             } else {    // b != 0
                 if($keyword == null || ($keyword && strlen($keyword) ==0)) {    // c == null
-                    return Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCategoryId)->get();
+                    return Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCategoryId)->where('off_shelf', 0)->get();
                 } else {
-                    return Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCategoryId)->where('products.name', 'like', '%' . $keyword . '%')->get();                    
+                    return Distributor::find($distributorId)->products()->where('products.product_sub_category_id', $subCategoryId)->where('products.name', 'like', '%' . $keyword . '%')->where('off_shelf', 0)->get();                    
                 }
             }
         }
@@ -428,9 +428,9 @@ class DistributorController extends Controller
 
         if($categoryId == 0 || $categoryId == 1){   // a == 0; 1 for all product category for the APP category page
             if($keyword == null || ($keyword && strlen($keyword) ==0)){     // c ==  null
-                return Product::all();
+                return Product::where('off_shelf', 0)->get();
             } else {    // c != null
-                return Product::where('products.name', 'like', '%' . $keyword . '%')->get();
+                return Product::where('products.name', 'like', '%' . $keyword . '%')->where('off_shelf', 0)->get();
             }
         } else {    // a!= 0
             if($subCategoryId == 0) {   // b == 0
@@ -440,7 +440,7 @@ class DistributorController extends Controller
 
                     $resp = [];
                     foreach ($subCategories_array as $subCat) {
-                        $products = Product::where('products.product_sub_category_id', $subCat['id'])->get();
+                        $products = Product::where('products.product_sub_category_id', $subCat['id'])->where('off_shelf',0)->get();
 
                         foreach($products as $p) {
                             array_push($resp, $p);
@@ -454,7 +454,7 @@ class DistributorController extends Controller
 
                     $resp = [];
                     foreach ($subCategories as $subCat) {
-                        $products = Product::where('products.product_sub_category_id', $subCat['id'])->where('products.name', 'like', '%' . $keyword . '%')->get();
+                        $products = Product::where('products.product_sub_category_id', $subCat['id'])->where('products.name', 'like', '%' . $keyword . '%')->where('off_shelf', 0)->get();
 
                         foreach($products as $p) {
                             array_push($resp, $p);
@@ -465,9 +465,9 @@ class DistributorController extends Controller
                 }
             } else {    // b != 0
                 if($keyword == null || ($keyword && strlen($keyword) ==0)) {    // c == null
-                    return Product::where('products.product_sub_category_id', $subCategoryId)->get();
+                    return Product::where('products.product_sub_category_id', $subCategoryId)->where('off_shelf', 0)->get();
                 } else {
-                    return Product::where('products.product_sub_category_id', $subCategoryId)->where('products.name', 'like', '%' . $keyword . '%')->get();                    
+                    return Product::where('products.product_sub_category_id', $subCategoryId)->where('products.name', 'like', '%' . $keyword . '%')->where('off_shelf', 0)->get();                    
                 }
             }
         }
@@ -572,6 +572,7 @@ class DistributorController extends Controller
      */
     public function destroy($id)
     {
+        // delete destributor inventory
         return Distributor::destroy($id);
 
         //return Response('deleted', 200);

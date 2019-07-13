@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 use App\ShippingAddress;
 use App\Customer;
@@ -85,6 +86,31 @@ class ShippingAddressController extends Controller
         return ShippingAddress::where('id', $addressId)->get();
     }
 
+
+    public function updateAddressAsDefault($addressId)
+    {
+        Log::debug($addressId);
+        $tempIds = ShippingAddress::select('id')->where('default_address', 1)->get();
+        Log::debug($tempIds[0]['id']);
+
+        $defaultAddress = ShippingAddress::find($tempIds[0]['id']);
+
+        $address = ShippingAddress::find($addressId);
+        if($address) {
+
+            DB::transaction(function() use ($defaultAddress, $address) {
+                $defaultAddress->default_address = 0;
+                $address->default_address = 1;
+
+                $defaultAddress->save();
+                $address->save();
+            }, 5);
+            
+            return response(json_encode(['done']), 200);
+        } else {
+            return response(json_encode(['not found']), 404);
+        }
+    }
 
     /**
      * Show the form for editing the specified resource.

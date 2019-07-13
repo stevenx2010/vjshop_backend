@@ -25,12 +25,15 @@ class CreateProductsTable extends Migration
             $table->decimal('weight');
             $table->string('weight_unit', 6);
             $table->decimal('price');
-            $table->string('brand')->default('Venjong')->nullable();
+            $table->string('brand')->default('稳卓')->nullable();
             $table->integer('inventory')->unsigned();
             $table->string('thumbnail_url', 255);
             $table->integer('sold_amount')->unsiged()->nullable()->default(0);
             $table->boolean('off_shelf')->default(false);
-            $table->integer('sort_order')->unsigne();
+            $table->integer('sort_order')->unsigned();
+            $table->string('package')->default('盒装')->nullable();
+            $table->string('coating')->default('镀锌')->nullable();
+            $table->string('quality')->default('售后')->nullable();
             $table->timestamps();
         });
     }
@@ -45,6 +48,12 @@ class CreateProductsTable extends Migration
         Schema::table('products', function(Blueprint $table) {
             $table->dropForeign('product_sub_category_id');
             $table->dropColumn('product_sub_category_id');
+            $table->dropForeign('package_id');
+            $table->dropColumn('package_id');
+            $table->dropForeign('coating_id');
+            $table->dropColumn('coating_id');
+            $table->dropForeign('quality_id');
+            $table->dropColumn('quality_id');
         });
 
         Schema::dropIfExists('products');

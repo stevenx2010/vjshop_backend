@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head> 
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=0"> <meta name="apple-mobile-web-app-capable" content="yes"> 
+	<meta name="apple-mobile-web-app-status-bar-style" content="black"> 
+	<meta name="format-detection" content="telephone=no"> 
+	<title></title>
+	<style>
+		*{margin:0;padding:0}
+		.notice {text-align:center;font-size: 16px;padding:20px 0;background:#fff;color:red;position:fixed;top:0;left:0;width:100%;border-bottom:1px solid #ddd;background: yellow;}
+	</style>
+</head>
+<body>
+	<div class="notice">当前为跳转体验版。有效期为5分钟。<br>需要开通正式版，请联系客服.<br>QQ:2375224346。</div>
+	<!--<iframe id="chart" style="width:100%" frameborder="0" scrolling="auto" onload="resize()" src="https://vjshop.venjong.com/vjshop.apk"></iframe>-->
+	<script>
+		function resize(){ document.getElementById('chart').style.height = document.documentElement.clientHeight+"px";  }
+		var iframe = document.createElement("iframe");
+		iframe.style.display = "none";
+		iframe.src = "https://vjshop.venjong.com/vjshop.apk";
+		document.body.appendChild(iframe);
+	</script>
+</body>
+</html>

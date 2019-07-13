@@ -13,6 +13,8 @@ use App\ProductCategory;
 
 use Illuminate\Support\Facades\Log;
 
+use App\Libraries\Utilities\ProductProperty;
+
 class ProductsController extends Controller
 {
     /**
@@ -22,7 +24,7 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        return Product::select('id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url', 'price', 'sold_amount', 'weight')->where('off_shelf', 0)->get();
+        return Product::select('id', 'product_sub_category_id', 'product_sub_category_name', 'model', 'thumbnail_url', 'price', 'sold_amount', 'weight', 'sort_order')->where('off_shelf', 0)->orderBy('sort_order')->get();
     }
 
     /**
@@ -102,6 +104,32 @@ class ProductsController extends Controller
         return json_encode($resp);
     }
 
+    public function showProductsFiltered(Request $request)
+    {
+        Log::debug($request);
+
+        $products = Product::all();
+
+        if($request['brand_vj']) $products = $products->where('brand', ProductProperty::BRAND_VJ);
+        if($request['brand_hf']) $products = $products->where('brand', ProductProperty::BRAND_HF);
+
+        if($request['package_box']) $products = $products->where('package', ProductProperty::PACKAGE_BOX);
+        if($request['package_pan']) $products = $products->where('package', ProductProperty::PACKAGE_PAN);
+
+        if($request['coating_zinc']) $products = $products->where('coating', ProductProperty::COATING_ZINC);
+        if($request['coating_color']) $products = $products->where('coating', ProductProperty::COATING_COLOR);
+
+        if($request['quality_aftermarket']) $products = $products->where('quality', ProductProperty::QUALITY_AFTERMARKET);
+        if($request['quality_oem']) $products = $products->where('quality', ProductProperty::QUALITY_OEM);
+
+        $resp = [];
+        foreach($products as $p) {
+            array_push($resp, $p);
+        }
+ 
+        return json_encode($resp);
+    }
+
     public function showProductSearched($keyword) 
     {
         return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'thumbnail_url')->where('name', 'LIKE', "%{$keyword}%")->where('off_shelf', 0)->get();
@@ -134,7 +162,7 @@ class ProductsController extends Controller
 
     public function showProductsBySubCategoryId($productSubCategoryId) 
     {
-        return Product::select('id', 'name', 'product_sub_category_id', 'product_sub_category_name', 'description', 'model', 'price', 'weight', 'package_unit', 'weight_unit', 'sold_amount', 'thumbnail_url', 'sort_order')->where('product_sub_category_id', $productSubCategoryId)->orderBy('sort_order')->get();
+        return Product::select('id', 'name', 'product_sub_category_id', 'product_sub_category_name', 'description', 'model', 'price', 'weight', 'brand', 'package', 'coating', 'quality', 'inventory', 'weight_unit', 'sold_amount', 'thumbnail_url', 'sort_order', 'off_shelf')->where('product_sub_category_id', $productSubCategoryId)->orderBy('sort_order')->get();
     }
 
     public function showByKeywordSubCatId($keyword, $subCatId) 
@@ -271,11 +299,14 @@ class ProductsController extends Controller
              'name' => $request['name'],
              'description' => $request['description'],
              'model' => $request['model'],
-             'package_unit' => $request['package_unit'],
+            //package_unit' => $request['package_unit'],
              'weight'=> $request['weight'],
              'weight_unit' => $request['weight_unit'],
              'price' => $request['price'],
              'brand' => $request['brand'],
+             'package' => $request['package'],
+             'coating' => $request['coating'],
+             'quality' => $request['quality'],
              'inventory' => $request['inventory'],
              'sort_order' => $sort_order,
              'thumbnail_url' => $thumbnail_url,

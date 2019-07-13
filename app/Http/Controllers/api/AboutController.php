@@ -18,7 +18,7 @@ class AboutController extends Controller
 
     	$resp = [];
     	if($about) {
-    		$resp = $about->get();
+    		$resp['content'] = $about['content'];
     		$resp['images'] = $about->images()->get();
     	}
 

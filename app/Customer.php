@@ -22,4 +22,9 @@ class Customer extends Model
     {
     	return $this->belongsToMany('App\Coupon')->withPivot('quantity')->withTimestamps();
     }
+
+    public function profile()
+    {
+        return $this->hasOne('App\CustomerProfile');
+    }
 }

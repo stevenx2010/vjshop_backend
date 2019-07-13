@@ -14,6 +14,8 @@ use App\Distributor;
 use App\DistributorContact;
 use App\DistributorAddress;
 use App\AppLog;
+use App\User;
+use App\AccessLog;
 
 use App\Libraries\Utilities\DeliveryStatus;
 use App\Libraries\Utilities\OrderStatus;
@@ -21,6 +23,7 @@ use App\Libraries\Utilities\CommentStatus;
 use App\Libraries\Utilities\InvoiceStatus;
 use App\Libraries\Utilities\RefundStatus;
 use App\Libraries\Utilities\LogType;
+use App\Libraries\Utilities\AccessType;
 
 use App\Libraries\Payment\PaymentMethods;
 use App\Libraries\Payment\AlipayOrderInfo;
@@ -30,6 +33,7 @@ use App\Libraries\Payment\WechatPay;
 use App\Libraries\Payment\WechatPayRequest;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -88,15 +92,21 @@ class OrderController extends Controller
                 $final_resp = $this->processOrders($orders);
                 break;
             case 'to_delivery':
-                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
+                //$orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::IN_DELIVERY)->get();
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->get();
                 $final_resp = $this->processOrders($orders);
                 break;
             case 'to_receive':
-                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->orWhere('order_status', OrderStatus::COMMENTED)->where('delivery_status', DeliveryStatus::CONFIRMED)->get();
+                //$orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->orWhere('order_status', OrderStatus::COMMENTED)->where('delivery_status', DeliveryStatus::CONFIRMED)->get();
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::IN_DELIVERY)->get();
+                $final_resp = $this->processOrders($orders);            
+                break;
+            case 'to_confirm':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->where('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->orderBy('order_date', 'desc')->get();
                 $final_resp = $this->processOrders($orders);            
                 break;
             case 'to_comment':
-                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->where('delivery_status', DeliveryStatus::CONFIRMED)->where('comment_status', CommentStatus::NOT_COMMENTED)->get();
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->where('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->where('comment_status', CommentStatus::NOT_COMMENTED)->get();
                 $final_resp = $this->processOrders($orders);
                 break;
         }
@@ -120,15 +130,22 @@ class OrderController extends Controller
                 $final_resp = $this->processOrders($orders);
                 break;
             case 'to_delivery':
-                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
+                //$orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->orWhere('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::WAITING_FOR_DELIVERY)->get();
                 $final_resp = $this->processOrders($orders);
                 break;
             case 'to_receive':
-                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->orWhere('order_status', OrderStatus::COMMENTED)->where('delivery_status', DeliveryStatus::CONFIRMED)->get();
+                //$orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->orWhere('order_status', OrderStatus::COMMENTED)->where('delivery_status', DeliveryStatus::CONFIRMED)->get();
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::PAID)->where('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->get();
+                $final_resp = $this->processOrders($orders);            
+                break;
+            case 'to_confirm':
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->where('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->orderBy('order_date', 'desc')->get();
                 $final_resp = $this->processOrders($orders);            
                 break;
             case 'to_comment':
-                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->where('delivery_status', DeliveryStatus::CONFIRMED)->where('comment_status', CommentStatus::NOT_COMMENTED)->get();
+                //$orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->where('delivery_status', DeliveryStatus::CONFIRMED)->where('comment_status', CommentStatus::NOT_COMMENTED)->get();
+                $orders = $user_obj->orders()->where('order_status', OrderStatus::RECEIVED)->where('delivery_status', DeliveryStatus::DELIVERED_NOT_CONFIRM)->where('comment_status', CommentStatus::NOT_COMMENTED)->get();
                 $final_resp = $this->processOrders($orders);
                 break;
         }
@@ -454,7 +471,7 @@ class OrderController extends Controller
                 $preOrderObj->out_trade_no = $request['order_serial'];
 
                 //**************** CHANGE THIS LINE IN PRODUCTON *******************//
-                $preOrderObj->total_fee = 1; // round($order_price * 100); test 1 cent
+                $preOrderObj->total_fee = 1; //round($order_price * 100);   //for test: set it to 1 
                 $preOrderObj->spbill_create_ip = $request->ip();
               
                 $prePayRequest = $preOrderObj->getPreOrderRequest();
@@ -464,12 +481,12 @@ class OrderController extends Controller
                 // Step 2: send preorder request to Wechat Service to get the prepayId
                 $wechatPayObj = new WechatPay($prePayRequest, env('WECHAT_UNIFIED_ORDER_URL'));
 
-                $this->doLog(LogType::PAYMENT_WECHAT_OUT, $request['order_serial'], $wechatPayObj->getRequest());
+                //$this->doLog(LogType::PAYMENT_WECHAT_OUT, $request['order_serial'], $wechatPayObj->getRequest());
 
                 $prepayId = '';
                 if($wechatPayObj->sendUnifiedOrderRequest()) {
                     $prepayId = $wechatPayObj->getPrepayId();
-                    $this->doLog(LogType::PAYMENT_WECHAT_IN, $request['order_serial'], $wechatPayObj->getResponseRaw());
+                    //$this->doLog(LogType::PAYMENT_WECHAT_IN, $request['order_serial'], $wechatPayObj->getResponseRaw());
                 }
 
                 // Step 3: prepare the pay request with the prepayId
@@ -477,7 +494,7 @@ class OrderController extends Controller
 
                 $final_resp = $payRequestObj->getWechatPayRequest();
 
-                $this->doLog(LogType::ORDER_BACKTO_USER, $request['order_serial'], json_encode($final_resp));
+                //$this->doLog(LogType::ORDER_BACKTO_USER, $request['order_serial'], json_encode($final_resp));
                 break;
             
             case PaymentMethods::ALIPAY:
@@ -485,7 +502,8 @@ class OrderController extends Controller
                 $order_info->body = $order_body;
                 $order_info->subject = $order_subject;
                 $order_info->out_trade_no = $request['order_serial'];
-                $order_info->total_amount = '0.01'; //round($order_price) . '';
+                //**************** CHANGE THIS LINE IN PRODUCTON *******************//
+                $order_info->total_amount = '0.01'; //round($order_price, 2) . '';  //for test: set it to '0.01'
 
                 Log::debug(json_encode($order_info));
                 $bz_content = json_encode($order_info);
@@ -506,12 +524,17 @@ class OrderController extends Controller
         if($order != null) {
             $order->delivery_status = $status;
             switch($status) {
-                case DeliveryStatus::DELIVERED_NOT_CONFIRM:
+                case DeliveryStatus::IN_DELIVERY:
                     $order->delivery_date = $datetime;
-                    $order->order_status = OrderStatus::RECEIVED;
+                    $order->order_status = OrderStatus::PAID;
                     break;
-                case DeliveryStatus::CONFIRMED:
+                /*case DeliveryStatus::DELIVERED_NOT_CONFIRM:
                     $order->delivery_confirm_date = $datetime;
+                    $order->order_status = OrderStatus::RECEIVED;
+                    break;*/
+                case DeliveryStatus::DELIVERED_NOT_CONFIRM:
+                    $order->delivery_confirm_date = $datetime;
+                    $order->order_status = OrderStatus::RECEIVED;
                     // Update invoice_status, comment_status
                     $order->invoice_status = InvoiceStatus::NOT_ISSUED;
                     $order->comment_status = CommentStatus::NOT_COMMENTED;
@@ -535,6 +558,8 @@ class OrderController extends Controller
 
                     }
 
+                    break;
+                case DeliveryStatus::CONFIRMED:
                     break;
             }
             
@@ -602,6 +627,63 @@ class OrderController extends Controller
         } else {
             return Response('id not found (delete)', 400);
         }   
+    }
+
+    public function updatePrice(Request $request)
+    {
+        Log::debug($request);
+        $email = $request['email'];
+        $username = $request['username'];
+        $orderSerial = $request['order_serial'];
+        $orderId = $request['order_id'];
+        $oldPrice = $request['old_price'];
+        $newPrice = $request['new_price'];
+        $moduleName = $request['module_name'];
+
+        // Verify the data is authentic
+        $users = User::where('name', $username)->get();
+        $user_is_correct = ($email == md5($users[0]['email'])) ? true : false;
+        
+        $orders = Order::where('order_serial', $orderSerial)->get();
+        $order_is_correct = ($orderId == md5($orders[0]['id'])) ? true : false;
+        
+        $price_is_correct = ($oldPrice == md5($orders[0]['total_price'])) ? true : false;
+
+        if($user_is_correct && $order_is_correct && $price_is_correct) {
+            $order_obj = Order::find($orders[0]['id']);
+            $order_obj->total_price = $newPrice;
+
+            //Log modifier
+            $log = new AccessLog;
+            $log->user = $username;
+            $log->email = $users[0]['email'];
+            $log->module_name = $moduleName;
+            $log->access_type = AccessType::MODIFY;
+            $log->previous_content = $orderSerial . '(' . $orders[0]['total_price'] . ')';
+            $log->current_content = $orderSerial . '(' . $newPrice . ')';
+
+            DB::transaction(function() use ($order_obj, $log) {
+                $order_obj->save();
+                $log->save();
+            });
+        } else {
+            return response(json_encode(['price dismatch'], 404));
+        }
+
+    }
+
+    public function queryPriceChangeHistory(Request $request)
+    {
+        Log::debug($request);
+        $query_by_date = $request['query_by_date'];
+        $date1 = $request['date1'];
+        $date2 = $request['date2'];
+
+        if($query_by_date) {
+            return AccessLog::where('created_at', '>=', $date1)->where('created_at', '<=', $date2)->get();
+        } else {
+            return AccessLog::all();
+        }
     }
 
     public function destroyByOrderSerial($orderSerial)

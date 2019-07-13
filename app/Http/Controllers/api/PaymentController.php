@@ -20,6 +20,7 @@ use App\AppLog;
 use App\Product;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -59,15 +60,23 @@ class PaymentController extends Controller
                             $order = Order::find($order_id);
 
                             /*****************CHANGE THIS LINE IN PRODUCTION *************************/
+                            //if($order_total_price == $order->total_price) {
                             if($order_total_price == 0.01/*$order->total_price*/) {     // all parameters are matched, then go furhter
                                 $order->order_status = OrderStatus::PAID;
                                 $order->delivery_status = DeliveryStatus::WAITING_FOR_DELIVERY;
-                                $order->save();
 
-                                $response = 'success';
-                                // update product sold amount
-                                $this->updateSoldAmount($order);
-
+                                try {
+                                    $response = 'success';
+                                    DB::transaction(function() use ($order, $response) {
+                                        $order->save();
+                                        // update product sold amount
+                                        $this->updateSoldAmount($order);                                        
+                                    });
+                                    $this->doLog(LogType::PAYMNET_ALIPAY_SUCCESS, $order_serial, $response);
+                                } catch (\Exception $e) {
+                                    $response = 'FAIL_DB_TRANSACTION';
+                                    $this->doLog(LogType::PAYMNET_ALIPAY_TRANS_ERR, $order_serial, $response);
+                                }
                             } else $response = 'FAIL_ORDER_PRICE_MISMTACH';
                         } else $response = 'FAIL_NO_SUCH_ORDER';
                     } else $response = 'FAIL_PID_OR_APP_ID';
@@ -97,6 +106,7 @@ class PaymentController extends Controller
     public function wechat(Request $request)
     {
         Log::debug('--------wechat notification-----------');
+        $response_err ='<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[NOTFOUND]]></return_msg></xml>';
         $xml = file_get_contents('php://input');
 
         Log::debug($xml);
@@ -133,17 +143,30 @@ class PaymentController extends Controller
                                 $order->order_status = OrderStatus::PAID;
                                 $order->delivery_status = DeliveryStatus::WAITING_FOR_DELIVERY;
                               //  $order->invoice_status = InvoiceStatus::NOT_ISSUED;
-                                
-                                $order->save();
                                 $response = '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
 
-                                // update product sold amount
-                                $this->updateSoldAmount($order);
+                                try {
+                                    DB::transaction(function() use ($order, $response) {
+                                        $order->save();
+                                        // update product sold amount
+                                        $this->updateSoldAmount($order);
+                                    });
+
+                                    $this->doLog(LogType::PAYMNET_WECHAT_SUCCESS, $order_serial, $response);
+                                } catch(\Exception $e) {
+                                    $response = $response_err;
+                                    $this->doLog(LogType::PAYMNET_WECHAT_TRANS_ERR, $order_serial, $response);
+                                }
+                                
+                            } else {
+                                $response = $response_err;
                             }
-                        }
+                        } else {
+                                $response = $response_err;
+                            }
                         
                     } else {
-                        $response = '<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[NOTFOUND]]></return_msg></xml>';
+                        $response = $response_err;
                     }
 
                     $this->doLog(LogType::PAYMENT_WECHAT_OUT, $order_serial, $response);

@@ -108,7 +108,7 @@ class ProductsController extends Controller
     {
         Log::debug($request);
 
-        $products = Product::all();
+        $products = Product::select('*')->orderBy('sort_order')->where('off_shelf', 0)->get();
 
         if($request['brand_vj']) $products = $products->where('brand', ProductProperty::BRAND_VJ);
         if($request['brand_hf']) $products = $products->where('brand', ProductProperty::BRAND_HF);
@@ -132,7 +132,7 @@ class ProductsController extends Controller
 
     public function showProductSearched($keyword) 
     {
-        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'thumbnail_url')->where('name', 'LIKE', "%{$keyword}%")->where('off_shelf', 0)->get();
+        return Product::select('id', 'name', 'description', 'price', 'weight', 'weight_unit', 'sold_amount', 'thumbnail_url')->where('name', 'LIKE', "%{$keyword}%")->where('off_shelf', 0)->orderBy('sort_order')->get();
     }
 
     public function showProductsByIds(Request $request)
@@ -169,19 +169,19 @@ class ProductsController extends Controller
     {
 
         if($keyword == '*' || $keyword == '') {
-            return Product::where('product_sub_category_id', $subCatId)->get();
+            return Product::where('product_sub_category_id', $subCatId)->orderBy('sort_order')->get();
         }
         else {
-            return Product::where('name', 'like', '%' . $keyword . '%')->where('product_sub_category_id', $subCatId)->get();
+            return Product::where('name', 'like', '%' . $keyword . '%')->where('product_sub_category_id', $subCatId)->orderBy('sort_order')->get();
         }
     }
 
     public function showByKeywordCatId($keyword, $catId)
     {
         if($keyword == '*' || $keyword == '') {
-            return ProductCategory::find($catId)->products()->get();
+            return ProductCategory::find($catId)->products()->orderBy('sort_order')->get();
         } else {
-            return ProductCategory::find($catId)->products()->where('products.name', 'like', '%' . $keyword . '%')->get();
+            return ProductCategory::find($catId)->products()->where('products.name', 'like', '%' . $keyword . '%')->orderBy('sort_order')->get();
         }
     }
 
@@ -189,18 +189,18 @@ class ProductsController extends Controller
     {
 
         $cat = ProductCategory::find($catId);
-        return json_encode($cat->products()->get());
+        return json_encode($cat->products()->orderBy('sort_order')->get());
     }
 
     public function showAll() {
-        return Product::all();
+        return Product::select('*')->orderBy('sort_order')->get();
     }
 
     public function showByKeyword($keyword) {
         if($keyword == '*' || $keyword == '') {
             return Product::all();
         } else {
-            return Product::where('name', 'like', '%' . $keyword . '%')->get();
+            return Product::where('name', 'like', '%' . $keyword . '%')->orderBy('sort_order')->get();
         }
     }
 

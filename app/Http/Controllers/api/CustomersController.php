@@ -273,7 +273,7 @@ class CustomersController extends Controller
         return $token->validate($data);
     }
        
-    public function createShippingAddress($request) {
+    public function createShippingAddress(Request $request) {
       $userId = $request['user_id'];
 
       // check if user id is null, if so, find userid by mobile
@@ -281,6 +281,11 @@ class CustomersController extends Controller
         $user = Customer::where('mobile', $request['mobile'])->get();
         $userId = (json_decode($user, true))[0]['id'];
       }
+
+      // select default address id
+      $default_address_id = ShippingAddress::where('default_address', 1)->get();
+      $default_address = ($default_address_id[0]['id'] == $userId) ? 1 : 0;
+
 
       //If this address is default address, then clear all DEFAULT mark of the records in db
       if($request['default_address']){
@@ -297,7 +302,7 @@ class CustomersController extends Controller
               'city' => $request['city'],
               'street' => $request['street'],
               'tel' => $request['tel'],
-              'default_address' => $request['default_address'],
+              'default_address' => $default_address, //$request['default_address'],
           ]
       );
 

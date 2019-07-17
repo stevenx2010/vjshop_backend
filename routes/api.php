@@ -251,6 +251,7 @@ Route::get('address/userid/{mobile}', 'ShippingAddressController@showUserId')->m
 Route::delete('address/id/{addressId}', 'ShippingAddressController@destroy')->middleware('appauth');
 Route::get('address/query/id/{addressId}', 'ShippingAddressController@showShippingAddressById')->middleware('appauth');
 Route::get('address/setdefault/id/{addressid}', 'ShippingAddressController@updateAddressAsDefault')->middleware('appauth');
+Route::post('address/create', 'ShippingAddressController@updateAddress')->middleware('appauth');
 
 
 /*

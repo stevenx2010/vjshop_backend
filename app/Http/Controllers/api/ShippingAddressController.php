@@ -61,7 +61,25 @@ class ShippingAddressController extends Controller
         $user = Customer::where('mobile', $mobile)->get();
         $userId = (json_decode($user, true))[0]['id'];
 
-        return ShippingAddress::select('id', 'username', 'mobile', 'tel', 'city', 'street', 'customer_id', 'default_address')->where('default_address', true)->where('customer_id', $userId)->get();
+        $default_address =  ShippingAddress::select('id', 'username', 'mobile', 'tel', 'city', 'street', 'customer_id', 'default_address')->where('default_address', true)->where('customer_id', $userId)->get();
+
+        // found the default address
+        if(count($default_address) > 0) return $default_address;
+        
+        // otherwise, check if there're addresses but no default address, select the first address & set it as default
+        $addresses = ShippingAddress::where('mobile', $mobile)->get();
+
+        // if no addresses, return empty
+        if(count($addresses) < 1) return [];
+      
+        // otherwise set the first one as default
+        ShippingAddress::where('id', $addresses[0]['id'])->update(['default_address' => 1]);           
+        $address = $addresses[0];
+
+        Log::debug('-----------------------ShippingAddress-------------------------');
+        Log::debug($address);
+
+        return [0 => $address];
     }
 
    public function showUserId($mobile)
@@ -89,27 +107,84 @@ class ShippingAddressController extends Controller
 
     public function updateAddressAsDefault($addressId)
     {
-        Log::debug($addressId);
-        $tempIds = ShippingAddress::select('id')->where('default_address', 1)->get();
-        Log::debug($tempIds[0]['id']);
-
-        $defaultAddress = ShippingAddress::find($tempIds[0]['id']);
-
+        // get the customer id
         $address = ShippingAddress::find($addressId);
-        if($address) {
+        $customer_id = $address->customer_id;
 
-            DB::transaction(function() use ($defaultAddress, $address) {
-                $defaultAddress->default_address = 0;
+        // select all default addresses of this customer if there's any
+        $addresses = ShippingAddress::where('customer_id', $customer_id)->where('default_address', 1)->get();
+        Log::debug($address);
+        Log::debug($customer_id);
+        Log::debug($addresses);
+
+        // check if this address is default address already
+        if($address[0]['default_address'] && count($addresses) < 1) return;
+        else {
+            DB::transaction(function() use ($customer_id, $address) {
+                ShippingAddress::where('customer_id', $customer_id)->where('id', '<>', $address->id)->update(['default_address' => 0]);
                 $address->default_address = 1;
-
-                $defaultAddress->save();
                 $address->save();
             }, 5);
             
             return response(json_encode(['done']), 200);
-        } else {
-            return response(json_encode(['not found']), 404);
         }
+
+        return response(json_encode(['not found']), 404);
+    }
+
+    public function updateAddress(Request $request)
+    {
+        $resp = [
+                "status" => 0,
+                "address" => ''
+        ];
+
+        try {
+            DB::transaction(function() use ($request) {
+                $userId = $request['user_id'];
+
+                // check if user id is null, if so, find userid by mobile
+                if(!$userId) {
+                $user = Customer::where('mobile', $request['mobile'])->get();
+                    $userId = (json_decode($user, true))[0]['id'];
+                }
+
+                $default_address_array = ShippingAddress::where('customer_id', $userId)->where('default_address', 1)->get();
+                if($request['default_address'] && count($default_address_array) > 0) {
+                    ShippingAddress::where('customer_id', $userId)->update(['default_address' => 0]);
+                }
+
+                $default_address = $request['default_address'];
+                if(!$request['default_address'] && count($default_address_array) < 1) {
+                    $default_address = 1;
+                }
+
+                $address = ShippingAddress::updateOrCreate(
+                  ['city' => $request['city'], 'street' => $request['street'], 'customer_id' => $userId],
+                  [
+                      'customer_id' => $userId,
+                      'username' => $request['username'],
+                      'mobile' => $request['mobile'],
+                      'city' => $request['city'],
+                      'street' => $request['street'],
+                      'tel' => $request['tel'],
+                      'default_address' => $default_address, //$request['default_address'],
+                  ]
+                );      
+            }, 5);
+        } catch (\Exception $e) {
+            $resp = [
+                "status" => 0,
+                "address" => 'Error Create Address'
+            ];
+            return response(json_encode($resp), 200)->header('Content-type', 'application/json');
+        }
+
+        $resp = [
+            "status" => 1,
+            "address" => 'Address Created Successfully'
+        ];
+        return response(json_encode($resp), 200)->header('Content-type', 'application/json');
     }
 
     /**

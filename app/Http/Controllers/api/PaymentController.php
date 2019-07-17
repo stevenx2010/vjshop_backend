@@ -152,10 +152,10 @@ class PaymentController extends Controller
                                         $this->updateSoldAmount($order);
                                     });
 
-                                    $this->doLog(LogType::PAYMNET_WECHAT_SUCCESS, $order_serial, $response);
+                                    $this->doLog(LogType::PAYMENT_WECHAT_SUCCESS, $order_serial, $response);
                                 } catch(\Exception $e) {
                                     $response = $response_err;
-                                    $this->doLog(LogType::PAYMNET_WECHAT_TRANS_ERR, $order_serial, $response);
+                                    $this->doLog(LogType::PAYMENT_WECHAT_TRANS_ERR, $order_serial, $response);
                                 }
                                 
                             } else {

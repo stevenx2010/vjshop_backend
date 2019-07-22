@@ -17,7 +17,7 @@ Route::get('/', function () {
 */
 
 Route::get('/app/download',function(Request $request) {
-	$android_url = 'https://vjshop.venjong.com/vjshop.apk';
+	$android_url = 'https://vjshop.venjong.com/deploy/download.php';
 	$iphone_url = 'https://itunes.apple.com/cn/app/bu-luo-chong-tu-huang-shi/id1053012308?mt=8';
 
 	$agent = $request->Server('HTTP_USER_AGENT');

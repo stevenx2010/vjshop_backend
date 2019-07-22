@@ -60,8 +60,8 @@ class PaymentController extends Controller
                             $order = Order::find($order_id);
 
                             /*****************CHANGE THIS LINE IN PRODUCTION *************************/
-                            //if($order_total_price == $order->total_price) {
-                            if($order_total_price == 0.01/*$order->total_price*/) {     // all parameters are matched, then go furhter
+                            if($order_total_price == $order->total_price) {
+                            //if($order_total_price == 0.01/*$order->total_price*/) {     // all parameters are matched, then go furhter
                                 $order->order_status = OrderStatus::PAID;
                                 $order->delivery_status = DeliveryStatus::WAITING_FOR_DELIVERY;
 
@@ -136,8 +136,8 @@ class PaymentController extends Controller
                             // check if the amount is equal
                             $order_price = $order->total_price * 100;
 
-                            //**************CHANGE THIS LINE IN PRODUCTION***********************//
-                            $order_price = 1;
+                            //**************COMMENT OUT THIS LINE IN PRODUCTION***********************//
+                            //$order_price = 1;
                             $order_price_received = $req['total_fee'];
                             if($order_price == $order_price_received) {
                                 $order->order_status = OrderStatus::PAID;

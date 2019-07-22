@@ -471,7 +471,8 @@ class OrderController extends Controller
                 $preOrderObj->out_trade_no = $request['order_serial'];
 
                 //**************** CHANGE THIS LINE IN PRODUCTON *******************//
-                $preOrderObj->total_fee = 1; //round($order_price * 100);   //for test: set it to 1 
+                $preOrderObj->total_fee = round($order_price * 100);
+                //$preOrderObj->total_fee = 1; //round($order_price * 100);   //for test: set it to 1 
                 $preOrderObj->spbill_create_ip = $request->ip();
               
                 $prePayRequest = $preOrderObj->getPreOrderRequest();
@@ -503,7 +504,8 @@ class OrderController extends Controller
                 $order_info->subject = $order_subject;
                 $order_info->out_trade_no = $request['order_serial'];
                 //**************** CHANGE THIS LINE IN PRODUCTON *******************//
-                $order_info->total_amount = '0.01'; //round($order_price, 2) . '';  //for test: set it to '0.01'
+                $order_info->total_amount = round($order_price, 2) . '';
+                //$order_info->total_amount = '0.01'; //round($order_price, 2) . '';  //for test: set it to '0.01'
 
                 Log::debug(json_encode($order_info));
                 $bz_content = json_encode($order_info);

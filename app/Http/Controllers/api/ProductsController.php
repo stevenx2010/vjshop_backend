@@ -115,6 +115,7 @@ class ProductsController extends Controller
 
         if($request['package_box']) $products = $products->where('package', ProductProperty::PACKAGE_BOX);
         if($request['package_pan']) $products = $products->where('package', ProductProperty::PACKAGE_PAN);
+        if($request['package_dai']) $products = $products->where('package', ProductProperty::PACKAGE_DAI);
 
         if($request['coating_zinc']) $products = $products->where('coating', ProductProperty::COATING_ZINC);
         if($request['coating_color']) $products = $products->where('coating', ProductProperty::COATING_COLOR);

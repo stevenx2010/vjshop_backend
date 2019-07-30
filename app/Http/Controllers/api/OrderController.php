@@ -360,6 +360,7 @@ class OrderController extends Controller
                 ['order_serial' => $request['order_serial']],
                 [
                     'order_serial' => $request['order_serial'],
+                    'payment_serial' => $request['payment_serial'],
                     'customer_id' => $request['customer_id'],
                     'distributor_id' => $request['distributor_id'],
                     'total_price' => $request['total_price'],
@@ -440,11 +441,14 @@ class OrderController extends Controller
             $order->payment_method = $request['payment_method'];
             $order->order_date = $request['order_date'];
             $order->order_serial = $request['order_serial'];
+            $order->payment_serial = $request['payment_serial'];
             $order->save();
+
+            $order_price = $order->total_price;
 
             // calculate the total price
             foreach($request['products'] as $product) {
-                $order_price += $product['price'] * $product['quantity'];
+                //$order_price += $product['price'] * $product['quantity'];
 
                 $thisProductDetails = Product::where('id', $product['productId'])->get();
                 $thisProductDetails_array = json_decode($thisProductDetails, true);
@@ -466,9 +470,9 @@ class OrderController extends Controller
         switch ($payment_method) {
             case PaymentMethods::WECHAT:
                 // Step 1: Prepare preorder request
-                $preOrderObj = new WechatUnifiedOrderRequest($request['order_serial']);
+                $preOrderObj = new WechatUnifiedOrderRequest($request['payment_serial']);
                 $preOrderObj->body .= $order_body;
-                $preOrderObj->out_trade_no = $request['order_serial'];
+                $preOrderObj->out_trade_no = $request['payment_serial'];
 
                 //**************** CHANGE THIS LINE IN PRODUCTON *******************//
                 $preOrderObj->total_fee = round($order_price * 100);

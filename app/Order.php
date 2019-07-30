@@ -9,6 +9,7 @@ use App\Comment;
 class Order extends Model
 {
 	protected $fillable = [	'order_serial',
+							'payment_serial',
 							'customer_id',
 							'distributor_id',
 							'total_price',

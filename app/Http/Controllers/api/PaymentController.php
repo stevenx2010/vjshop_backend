@@ -127,7 +127,7 @@ class PaymentController extends Controller
                 if(Cache::get($order_serial) == null) {
                     Cache::put($order_serial, true);
 
-                    $order_array = Order::where('order_serial', $order_serial)->get();
+                    $order_array = Order::where('payment_serial', $order_serial)->get();
 
                     if(count($order_array) > 0) {
                         $order = Order::find($order_array[0]->id);

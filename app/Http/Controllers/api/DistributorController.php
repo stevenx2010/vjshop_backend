@@ -5,6 +5,8 @@ namespace App\Http\Controllers\api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use \Cache;
+
 use App\Distributor;
 use App\DistributorAddress;
 use App\DistributorContact;
@@ -588,8 +590,9 @@ class DistributorController extends Controller
         return DistributorContact::destroy($contactId);
     }
 
-    public function login($mobile) 
+    public function login(Request $request) 
     {
+        $mobile = $request['mobile'];
         
         $distributor_id = DistributorContact::select('distributor_id')->where('mobile', 'like', $mobile)->get();
 
@@ -597,14 +600,38 @@ class DistributorController extends Controller
         Log::debug($id);
 
         if(count($id) > 0) {
-            $distributor = Distributor::find($id[0]->distributor_id);
-            $now = new \DateTime("now");
-            $distributor->last_login = $now->format('Y-m-d H:i:s');
-            $distributor->save();
-            return response('ok', 200);
+            // Verify the sms code
+            $result = $this->checkSMSCode($mobile, $request['sms_code']);
+
+            switch($result) {
+                case 200:
+                    $distributor = Distributor::find($id[0]->distributor_id);
+                    $now = new \DateTime("now");
+                    $distributor->last_login = $now->format('Y-m-d H:i:s');
+                    $distributor->save();
+
+                    return response('ok', 200);
+                    break;
+                case 201:
+                    return response('mismatch', 201);
+                    break;
+                default: 
+                    return response('sms not found', 202);
+            }
         }
         else 
             return response('not found', 404);
+    }
+
+    public function checkSMSCode($mobile, $sms_code)
+    {
+        // step 1: Get sms code from memcached to check if code matches & expired
+        /******************** code here */
+        $stored_sms_code = Cache::get($mobile);
+
+        if(!$stored_sms_code) return 202;
+        if($stored_sms_code != $sms_code) return 201;
+        if($stored_sms_code == $sms_code) return 200;
     }
 
     public function checkLogin($mobile)

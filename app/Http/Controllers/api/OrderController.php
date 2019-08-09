@@ -226,9 +226,11 @@ class OrderController extends Controller
         if($request['delivery_status'] > 0) {
             $orders = $orders->where('delivery_status', $request['delivery_status']);
         }
+  /*
         if($request['invoice_status'] > 0) {
             $orders = $orders->where('invoice_status', $request['invoice_status']);
         }
+*/
         if($request['comment_status'] > 0) {
             $orders = $orders->where('comment_status', $request['comment_status']);
         }
@@ -237,14 +239,15 @@ class OrderController extends Controller
             $orders = $orders->where('order_date', '>', $request['date1'])->where('order_date', '<', $request['date2']);
         }
 
-        if($request['invoice_required']) {
-            $orders = $orders->where('is_invoice_required', true)->where('invoice_status', InvoiceStatus::NOT_ISSUED)->where('delivery_status', DeliveryStatus::CONFIRMED);
+        if($request['is_invoice_required']) {
+            $orders = $orders->where('is_invoice_required', true)->where('invoice_status', $request['invoice_status']);
         }
 
+/*
         if($request['invoice_issued']) {
             $orders = $orders->where('invoice_status', InvoiceStatus::ISSUED);
         }
-
+*/
         if($request['refund_orders']) {
             $orders = $orders->where('refund_status', RefundStatus::REFUNDED);
         }

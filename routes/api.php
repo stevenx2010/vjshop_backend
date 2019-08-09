@@ -262,7 +262,7 @@ Route::post('address/create', 'ShippingAddressController@updateAddress')->middle
 Route::get('distributor/address/{city}', 'DistributorController@showAddress')->middleware('appauth');
 Route::get('distributor/contact/{distributorId}', 'DistributorController@showContact')->middleware('appauth');
 Route::get('distributor/distributor/{distributorId}', 'DistributorController@show')->middleware('appauth');
-Route::get('distributor/login/{mobile}', 'DistributorController@login')->middleware('appauth');
+Route::post('distributor/login', 'DistributorController@login')->middleware('appauth');
 Route::get('distributor/orders/{mobile}', 'DistributorController@showOrders')->middleware('appauth');
 Route::get('distributor/inventories/{mobile}', 'DistributorController@showInventories')->middleware('appauth');
 Route::get('distributor/info/mobile/{mobile}', 'DistributorController@showInfoByMobile')->middleware('appauth');

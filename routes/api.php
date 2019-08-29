@@ -183,6 +183,12 @@ Route::get('front/setting/shipping/delete/{id}', 'SettingController@destroyById'
 */
 Route::post('front/about/page/update', 'AboutController@update');
 
+/*
+|--------------------------------------------------------------------------
+| Payment Routes for Front End 
+|--------------------------------------------------------------------------
+*/
+Route::get('front/payment/alipay/query/{order_serial}', 'PaymentController@alipayQuery');
 
 /*
 |--------------------------------------------------------------------------

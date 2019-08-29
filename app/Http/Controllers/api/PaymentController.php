@@ -22,6 +22,10 @@ use App\Product;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
+use App\Libraries\Payment\AlipayPayRequest;
+use App\Libraries\Payment\AlipayInterfaces;
+use App\Libraries\Payment\AlipayQueryInfo;
+
 class PaymentController extends Controller
 {
     /* if success, change following 
@@ -65,22 +69,35 @@ class PaymentController extends Controller
                                 $order->order_status = OrderStatus::PAID;
                                 $order->delivery_status = DeliveryStatus::WAITING_FOR_DELIVERY;
 
-                                try {
+                                //try {
                                     $response = 'success';
-                                    DB::transaction(function() use ($order, $response) {
+                                //    DB::transaction(function() use ($order, $response) {
                                         $order->save();
                                         // update product sold amount
                                         $this->updateSoldAmount($order);                                        
-                                    });
-                                    $this->doLog(LogType::PAYMNET_ALIPAY_SUCCESS, $order_serial, $response);
-                                } catch (\Exception $e) {
+                                //    });
+                                    $this->doLog(LogType::PAYMENT_ALIPAY_SUCCESS, $order_serial, $response);
+/*                                } catch (\Exception $e) {
                                     $response = 'FAIL_DB_TRANSACTION';
                                     $this->doLog(LogType::PAYMNET_ALIPAY_TRANS_ERR, $order_serial, $response);
-                                }
-                            } else $response = 'FAIL_ORDER_PRICE_MISMTACH';
-                        } else $response = 'FAIL_NO_SUCH_ORDER';
-                    } else $response = 'FAIL_PID_OR_APP_ID';
-                } else Log::debug('Processing... LOCKED! Alipay');
+                                }*/
+                            } else {
+                                $response = 'FAIL_ORDER_PRICE_MISMTACH';
+                                $this->doLog(LogType::PAYMENT_ALIPAY_TRANS_ERR, $order_serial, $response);
+                            }
+                        } else {
+                            $response = 'FAIL_NO_SUCH_ORDER';
+                            $this->doLog(LogType::PAYMENT_ALIPAY_TRANS_ERR, $order_serial, $response);
+                        }
+                    } else {
+                        $response = 'FAIL_PID_OR_APP_ID';
+                        $this->doLog(LogType::PAYMENT_ALIPAY_TRANS_ERR, $order_serial, $response);
+                    }
+                } else {
+                    Log::debug('Processing... LOCKED! Alipay');
+                    $response = 'FAIL_LOCKED_PROCESSING';
+                    $this->doLog(LogType::PAYMENT_ALIPAY_TRANS_ERR, $order_serial, $response);
+                }
 
                 $this->doLog(LogType::PAYMENT_ALIPAY_OUT, $order_serial, $response);
 
@@ -145,28 +162,31 @@ class PaymentController extends Controller
                               //  $order->invoice_status = InvoiceStatus::NOT_ISSUED;
                                 $response = '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
 
-                                try {
-                                    DB::transaction(function() use ($order, $response) {
+                                //try {
+                                //    DB::transaction(function() use ($order, $response) {
                                         $order->save();
                                         // update product sold amount
                                         $this->updateSoldAmount($order);
-                                    });
+                                //    });
 
                                     $this->doLog(LogType::PAYMENT_WECHAT_SUCCESS, $order_serial, $response);
-                                } catch(\Exception $e) {
+                                /*} catch(\Exception $e) {
                                     $response = $response_err;
                                     $this->doLog(LogType::PAYMENT_WECHAT_TRANS_ERR, $order_serial, $response);
-                                }
+                                }*/
                                 
                             } else {
                                 $response = $response_err;
+                                $this->doLog(LogType::PAYMENT_WECHAT_TRANS_ERR, $order_serial, $response);
                             }
                         } else {
                                 $response = $response_err;
+                                $this->doLog(LogType::PAYMENT_WECHAT_TRANS_ERR, $order_serial, $response);
                             }
                         
                     } else {
                         $response = $response_err;
+                        $this->doLog(LogType::PAYMENT_WECHAT_TRANS_ERR, $order_serial, $response);
                     }
 
                     $this->doLog(LogType::PAYMENT_WECHAT_OUT, $order_serial, $response);
@@ -208,5 +228,24 @@ class PaymentController extends Controller
             $pdt_obj->sold_amount = $sold_amount;
             $pdt_obj->save();
         }
+    }
+
+    public function alipayQuery($order_serial)
+    {
+        $alipay_query_info = new AlipayQueryInfo();
+
+        $alipay_query_info->out_trade_no = $order_serial;
+
+        $bz_conent = json_encode($alipay_query_info);
+
+        $alipay_request = new AlipayPayRequest($bz_conent, 'utf-8', AlipayInterfaces::TRADE_QUERY);
+
+        // Set query request to Alipay
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, env('ALIPAY_GATEWAY_URL') . '?' . $alipay_request->getRequest());
+        $data = curl_exec($curl);
+        curl_close($curl);
+
+        return $data;
     }
 }

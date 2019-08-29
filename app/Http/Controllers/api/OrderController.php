@@ -419,6 +419,9 @@ class OrderController extends Controller
                 } 
                 $order_subject = $thisProductDetails_array[0]['product_sub_category_name'];
         
+                // deduct coupons used from order price
+
+                // deduct shipping free from order price
             
                 // set these coupons as used
                 $user = Customer::find($request['customer_id']);
@@ -439,6 +442,9 @@ class OrderController extends Controller
                     }
                 }
             }
+
+            $order_price = $request['total_price'];
+            
         } else { // existing unpaid order
             $order = Order::find($request['id']);
             $order->payment_method = $request['payment_method'];

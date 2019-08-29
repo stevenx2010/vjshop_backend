@@ -21,7 +21,7 @@ class CreateProductsTable extends Migration
             $table->foreign('product_sub_category_id')->references('id')->on('product_sub_categories')->onDelete('cascade');
             $table->string('product_sub_category_name');
             $table->string('model', 40);
-            $table->string('package_unit', 4);
+            $table->string('package_unit', 4)->default('盒')->nullable();
             $table->decimal('weight');
             $table->string('weight_unit', 6);
             $table->decimal('price');

@@ -40,8 +40,8 @@ class WechatPay {
 		}	
 
 		if($this->response['return_code'] == 'FAIL' || $this->response['result_code'] == 'FAIL') {
-			Log::debug($this->response['err_code']);
-			Log::debug($this->response['err_code_des']);
+			//Log::debug($this->response['err_code']);
+			Log::debug($this->response['return_msg']);
 			return false;
 		}
 		else 

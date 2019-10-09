@@ -414,9 +414,15 @@ class OrderController extends Controller
 
                 $order_price += $product['price'] * $product['quantity'];
 
-                if(strlen($order_body) < 120) {
+                if(strlen($order_body) < 40) {
                     $order_body = $order_body . '-' . $thisProductDetails_array[0]['model'];
                 } 
+
+                // Wechat max body len is string(128)
+                if(strlen($order_body) > 52) {
+                    $order_body = substr($order_body, 0, 51);
+                }
+
                 $order_subject = $thisProductDetails_array[0]['product_sub_category_name'];
         
                 // deduct coupons used from order price
@@ -462,15 +468,22 @@ class OrderController extends Controller
                 $thisProductDetails = Product::where('id', $product['productId'])->get();
                 $thisProductDetails_array = json_decode($thisProductDetails, true);
 
-                if(strlen($order_body) < 120) {
+                if(strlen($order_body) < 40) {
                     $order_body = $order_body . '-' . $thisProductDetails_array[0]['model'];
                 } 
+
+                // Wechat max body len is string(128)
+                if(strlen($order_body) > 52) {
+                    $order_body = substr($order_body, 0, 51);
+                }
+
                 $order_subject = $thisProductDetails_array[0]['product_sub_category_name'];
             }
         }           
 
         Log::debug($order_price);
         Log::debug($order_body);
+        Log::debug(strlen($order_body));
         Log::debug($order_subject);
 
         $this->doLog(LogType::ORDER_FROM_USER, $request['order_serial'], json_encode($request));

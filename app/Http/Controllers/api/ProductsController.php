@@ -112,6 +112,8 @@ class ProductsController extends Controller
 
         if($request['brand_vj']) $products = $products->where('brand', ProductProperty::BRAND_VJ);
         if($request['brand_hf']) $products = $products->where('brand', ProductProperty::BRAND_HF);
+        if($request['brand_vj']) $products = $products->where('brand', ProductProperty::BRAND_PF);
+        if($request['brand_hf']) $products = $products->where('brand', ProductProperty::BRAND_VA);
 
         if($request['package_box']) $products = $products->where('package', ProductProperty::PACKAGE_BOX);
         if($request['package_pan']) $products = $products->where('package', ProductProperty::PACKAGE_PAN);

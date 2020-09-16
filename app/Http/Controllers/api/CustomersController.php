@@ -36,7 +36,7 @@ class CustomersController extends Controller
       
         Log::debug($request);
         Log::debug($request->header('authorization'));
-        $API_TOKEN = 'asdfasdf';
+        $API_TOKEN = env('token');
 
         // Check api_token
         $api_token = $request->header('authorization');

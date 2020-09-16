@@ -18,7 +18,7 @@ class AppAuth
      */
     public function handle($request, Closure $next)
     {
-        $api_token = '356446b5f16423dc88c75fb00d02eefd';
+        $api_token = env('api_token');
         $header = $request->header('Authorization');
         $array = explode(' ', $header);
         $api_token_in = $array[1];
